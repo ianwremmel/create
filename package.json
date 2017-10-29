@@ -27,7 +27,7 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=8.5.0"
   },
   "keywords": [],
   "author": "Ian W. Remmel <design@ianwremmel.com>",

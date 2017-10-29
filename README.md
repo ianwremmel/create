@@ -21,6 +21,16 @@ I got tired of going through the same set of steps to create a repo, tweak packa
 npm install -g @ianwremmel/proj
 ```
 
+### Dependencies
+
+- libgcrypt
+
+    [nodegit](http://www.nodegit.org/) depends on it and the error when it's missing is very non-obvious.
+
+    ```bash
+    brew install libgcrypt
+    ```
+
 ## Usage
 
 ```bash
