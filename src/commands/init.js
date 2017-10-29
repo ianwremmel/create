@@ -2,7 +2,6 @@
 
 /* eslint-disable max-statements */
 
-const {exec} = require(`child_process`);
 const debug = require(`debug`)(`proj:command:init`);
 const GitHubAPI = require(`github`);
 const kit = require(`nodegit-kit`);
@@ -129,53 +128,26 @@ module.exports = {
     await push(remote);
     debug(`Done`);
 
-    // Echo log statement and launch browser
-    console.log(`Unfortunately, the next step doesn't seem to be possible from the GitHub API.`);
-    console.log(`In a moment, a web browser will open for you to take a few manual steps`);
-    console.log();
-    console.log(`Please check the boxes for`);
-    console.log(`  - "Protect this branch"`);
-    console.log(`  - "Require status checks to pass before merging"`);
-    console.log();
-    console.log(`Press any key to open github.com`);
-    console.log();
-
-    await new Promise((resolve) => process.stdin.once(`data`, resolve));
-    exec(`open "https://github.com/${context.github.login}/${context.githubProjectName}/settings/branches/master"`);
-
-    console.log(`Press any key to continue after enabling branch protection`);
-    await new Promise((resolve) => process.stdin.once(`data`, resolve));
-
-    debug(`Requiring Circle CI to pass before merging to master`);
-    await github.repos.addProtectedBranchRequiredStatusChecksContexts({
+    debug(`Enabling branch protection`);
+    await github.repos.updateBranchProtection({
       branch: `master`,
-      contexts: [
-        `ci/circleci`
-      ],
-      owner: context.github.login,
-      repo: context.githubProjectName
-    });
-    debug(`Done`);
-
-    debug(`Requiring branch to be up to date befor merging`);
-    await github.repos.updateProtectedBranchRequiredStatusChecks({
-      branch: `master`,
-      contexts: [
-        `ci/circleci`
-      ],
+      enforce_admins: true,
       owner: context.github.login,
       repo: context.githubProjectName,
-      strict: true
+      required_pull_request_reviews: null,
+      required_status_checks: {
+        contexts: [
+          `ci/circleci: lint`,
+          `ci/circleci: test-node-6`,
+          `ci/circleci: test-node-8`
+        ],
+        strict: true
+      },
+      restrictions: null
     });
     debug(`Done`);
 
-    debug(`Protecting master branch from admins`);
-    await github.repos.addProtectedBranchAdminEnforcement({
-      branch: `master`,
-      owner: context.github.login,
-      repo: context.githubProjectName
-    });
-    debug(`Done`);
+    // TODO print the URLs to github and circle CI
 
     console.log(`Reminder: to send coverage to coveralls, you need to`);
     // TODO figure out how to follow the project on coveralls, then set the repo
