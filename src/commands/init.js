@@ -2,6 +2,8 @@
 
 /* eslint-disable max-statements */
 
+const {exec} = require(`child_process`);
+
 const debug = require(`debug`)(`proj:command:init`);
 const GitHubAPI = require(`github`);
 const kit = require(`nodegit-kit`);
@@ -17,6 +19,11 @@ module.exports = {
       alias: `short-description`,
       demandOption: true,
       type: `string`
+    },
+    i: {
+      alias: `install`,
+      default: true,
+      type: `boolean`
     },
     p: {
       alias: `package-name`,
@@ -154,6 +161,12 @@ module.exports = {
     // token via the Circle API.
     console.log(`- Follow the project on https://coveralls.io`);
     console.log(`- Add the repo token to Circle CI`);
+
+    if (context.install) {
+      debug(`Kicking off npm install`);
+      exec(`npm install`);
+      debug(`done`);
+    }
 
     process.stdin.unref();
   }
