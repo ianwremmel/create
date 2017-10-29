@@ -1,0 +1,72 @@
+restore_cache: &restore_cache
+  keys:
+    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ checksum "package.json" }}
+    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package.json" }}
+    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
+
+save_cache: &save_cache
+  key: node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ checksum "package.json" }}
+  paths:
+    - node_modules
+
+steps: &steps
+  - checkout
+  - restore_cache: *restore_cache
+  - run: npm install
+  - run: npm test
+  - run: npm run coveralls || true
+  - save_cache: *save_cache
+  - store_test_results:
+      path: reports
+
+version: 2
+jobs:
+  lint:
+    docker:
+      - image: node:8
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: npm install
+      - run: npm run lint
+      - save_cache: *save_cache
+
+  test-node-6:
+    docker:
+      - image: node:6
+    steps: *steps
+
+  test-node-8:
+    docker:
+      - image: node:8
+    steps: *steps
+
+  release:
+    docker:
+      - image: node:8
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: npm install
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              npm run semantic-release || true
+            fi
+      - save_cache: *save_cache
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      # Reminder: we don't want to block tests on lint, otherwise #no-push
+      # prevents tests from running
+      - lint
+      - release:
+          filters:
+            branches:
+              only: master
+          requires:
+            - test-node-6
+            - test-node-8
+            - lint

@@ -1,7 +1,9 @@
 'use strict';
 
 const handlebars = require(`handlebars`);
-const {readFile, writeFile} = require(`mz/fs`);
+const {
+  copyFile, readFile, writeFile
+} = require(`mz/fs`);
 const mkdirp = require(`mkdirp`);
 const path = require(`path`);
 
@@ -25,3 +27,18 @@ exports.template = async function template(filename, context) {
   mkdirp.sync(path.dirname(outPath));
   await writeFile(outPath, out);
 };
+
+/**
+ * Copy a file to the project directory
+ *
+ * @param {string} filename - local file
+ * @param {object} context - argv
+ * @returns {Promise} -
+ */
+exports.copy = async function copy(filename) {
+  const src = path.resolve(__dirname, `..`, `templates`, filename);
+  const dest = path.resolve(process.cwd(), filename);
+  mkdirp.sync(path.dirname(dest));
+  await copyFile(src, dest);
+};
+

@@ -10,7 +10,7 @@ const nodegit = require(`nodegit`);
 
 const CircleCI = require(`../lib/circleci`);
 const netrc = require(`../lib/netrc`);
-const {template} = require(`../lib/templating`);
+const {copy, template} = require(`../lib/templating`);
 
 module.exports = {
   builder: {
@@ -75,6 +75,7 @@ module.exports = {
     await push(remote);
     debug(`Done`);
 
+    // TODO increase parallelism for non-private projects
     debug(`Following project on Circle CI`);
     await cci.follow({
       project: context.githubProjectName,
@@ -113,29 +114,33 @@ module.exports = {
       `package.json`
     ], `feat(package): create initial package.json`);
 
+    debug(`Creating a Circle CI config file`);
+    await addAndCommitNoTemplate(repo, context, [
+      `circle.yml`
+    ], `chore(tooling): configure circleci`);
+    debug(`Done`);
+
     debug(`Pushing package.json and project files to GitHub`);
     await push(remote);
     debug(`Done`);
 
-    // TODO drop a cci config file
-
     // Echo log statement and launch browser
-    console.log(
-      `Unfortunately, the next step doesn't seem to be possible from the GitHub API.
-Please check the boxes for
-- "Protect this branch"
-- "Require status checks to pass before merging"
-Please manually enable branch protection and required status checks. You don't
-need to require specific checks, just enable the feature. After you've enabled
-the features, return to this window.`
-    );
-
+    console.log(`Unfortunately, the next step doesn't seem to be possible from the GitHub API.`);
+    console.log(`In a moment, a web browser will open for you to take a few manual steps`);
+    console.log();
+    console.log(`Please check the boxes for`);
+    console.log(`  - "Protect this branch"`);
+    console.log(`  - "Require status checks to pass before merging"`);
+    console.log();
     console.log(`Press any key to open github.com`);
+    console.log();
+
     await new Promise((resolve) => process.stdin.once(`data`, resolve));
     exec(`open "https://github.com/${context.github.login}/${context.githubProjectName}/settings/branches/master"`);
 
     console.log(`Press any key to continue after enabling branch protection`);
     await new Promise((resolve) => process.stdin.once(`data`, resolve));
+
     debug(`Requiring Circle CI to pass before merging to master`);
     await github.repos.addProtectedBranchRequiredStatusChecksContexts({
       branch: `master`,
@@ -167,6 +172,12 @@ the features, return to this window.`
     });
     debug(`Done`);
 
+    console.log(`Reminder: to send coverage to coveralls, you need to`);
+    // TODO figure out how to follow the project on coveralls, then set the repo
+    // token via the Circle API.
+    console.log(`- Follow the project on https://coveralls.io`);
+    console.log(`- Add the repo token to Circle CI`);
+
     process.stdin.unref();
   }
 };
@@ -184,7 +195,33 @@ the features, return to this window.`
  */
 async function addAndCommit(repo, context, files, message) {
   debug(`Creating ${files.join(`, `)}`);
-  files.forEach((f) => template(f, context));
+  for (const file of files) {
+    await template(file, context);
+  }
+
+  const index = await repo.refreshIndex();
+  await index.addAll();
+  await index.write();
+  await index.writeTree();
+  await kit.commit(repo, {message});
+  debug(`Done`);
+}
+
+/**
+ * same as addAndCommit, but skips handlebars
+ *
+ * @param {Repository} repo -
+ * @param {Object} context -
+ * @param {Array<string>} files -
+ * @param {string} message -
+ * @private
+ * @returns {Promise} -
+ */
+async function addAndCommitNoTemplate(repo, context, files, message) {
+  debug(`Creating ${files.join(`, `)}`);
+  for (const file of files) {
+    await copy(file, context);
+  }
 
   const index = await repo.refreshIndex();
   await index.addAll();
