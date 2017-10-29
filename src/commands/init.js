@@ -132,14 +132,19 @@ module.exports = {
 
     // Reminder, we create package.json late so that greenkeeper doesn't run
     // until after Circle CI is setup
-    debug(`Creating package.json`);
-    await template(`package.json`);
-    await addAndCommit(repo, context, `feat(package): create initial package.json`);
+    if (!await exists(`package.json`)) {
+      debug(`Creating package.json`);
+      await template(`package.json`, context);
+      await addAndCommit(repo, context, `feat(package): create initial package.json`);
+      debug(`Done`);
+    }
 
-    debug(`Creating a Circle CI config file`);
-    await copy(`circle.yml`);
-    await addAndCommit(repo, context, `chore(tooling): configure circleci`);
-    debug(`Done`);
+    if (!await exists(`circle.yml`)) {
+      debug(`Creating a Circle CI config file`);
+      await copy(`circle.yml`);
+      await addAndCommit(repo, context, `chore(tooling): configure circleci`);
+      debug(`Done`);
+    }
 
     debug(`Pushing package.json and project files to GitHub`);
     await push(remote);
