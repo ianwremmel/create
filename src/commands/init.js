@@ -47,8 +47,8 @@ module.exports = {
       .split(`/`)
       .pop();
 
-    await netrc.check(`circleci.com`, `https://circleci.com/api/v1.1/me`, context);
-    await netrc.check(`api.github.com`, `https://api.github.com/user`, context);
+    await netrc.check(`circleci.com`, `https://circleci.com/api/v1.1/me`);
+    await netrc.check(`api.github.com`, `https://api.github.com/user`);
 
     const cci = new CircleCI();
     debug(`Confirming we can retrieve our user details from Circle CI`);
@@ -124,7 +124,7 @@ module.exports = {
     // Reminder, we create package.json late so that greenkeeper doesn't run
     // until after Circle CI is setup
     debug(`Creating package.json`);
-    await template(`package.json`);
+    await template(`package.json`, context);
     await addAndCommit(repo, context, `feat(package): create initial package.json`);
 
     debug(`Creating a Circle CI config file`);

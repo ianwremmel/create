@@ -4,6 +4,12 @@ const debug = require(`debug`)(`proj:lib:netrc`);
 const request = require(`request-promise-native`);
 const netrc = require(`netrc`);
 
+/**
+ * Check if we can auth against the specified testurl via netrc credentials
+ * @param {string} machine -
+ * @param {string} testurl -
+ * @returns {Promise} -
+ */
 exports.check = async function check(machine, testurl) {
   const config = netrc();
   const auth = config[machine];
@@ -33,6 +39,11 @@ exports.check = async function check(machine, testurl) {
   }
 };
 
+/**
+ * Gets the credentials for the specified machine from netrc
+ * @param {string} machine -
+ * @returns {Object} -
+ */
 exports.host = function host(machine) {
   const config = netrc();
   const auth = config[machine];

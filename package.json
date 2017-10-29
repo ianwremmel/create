@@ -33,6 +33,13 @@
   "author": "Ian W. Remmel <design@ianwremmel.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/debug": "0.0.30",
+    "@types/handlebars": "^4.0.36",
+    "@types/mkdirp": "^0.5.1",
+    "@types/mz": "0.0.32",
+    "@types/node": "^8.0.47",
+    "@types/nodegit": "^0.18.4",
+    "@types/request-promise-native": "^1.0.9",
     "circleci": "^0.3.3",
     "debug": "^3.1.0",
     "handlebars": "^4.0.11",
@@ -43,6 +50,7 @@
     "nodegit-kit": "^0.17.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
+    "s": "^0.1.1",
     "yargs": "^10.0.3"
   },
   "devDependencies": {
@@ -62,7 +70,8 @@
     "lint-staged": "^4.3.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
-    "semantic-release": "^8.2.0"
+    "semantic-release": "^8.2.0",
+    "typescript": "^2.5.3"
   },
   "lint-staged": {
     "*.js": "lint:eslint",
