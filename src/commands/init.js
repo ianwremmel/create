@@ -76,9 +76,8 @@ module.exports = {
     debug(`Done`);
 
     debug(`Setting local branch master to track origin/master`);
-    // FIXME this still doesn't quite work
-    const branch = await nodegit.Branch.lookup(repo, `master`, nodegit.Branch.BRANCH.REMOTE);
-    await nodegit.Branch.setUpstream(branch, `master`);
+    const branch = await nodegit.Branch.lookup(repo, `master`, nodegit.Branch.BRANCH.LOCAL);
+    await nodegit.Branch.setUpstream(branch, `origin/master`);
     debug(`Done`);
 
     // TODO increase parallelism for non-private projects
