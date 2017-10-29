@@ -121,6 +121,7 @@ module.exports = {
       `.eslintrc.yml`,
       `.gitignore`,
       `.npmrc`,
+      `commitlint.config.js`,
       `LICENSE`
     ]) {
       if (!await exists(file)) {
