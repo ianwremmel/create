@@ -162,9 +162,8 @@ module.exports = {
       restrictions: null
     });
     debug(`Done`);
-    console.info(require(`util`)
-      .inspect(context.circleci, {depth: null}));
 
+    console.log();
     console.log(`Reminder: to send coverage to coveralls, you need to`);
     console.log(`- Follow the project on https://coveralls.io`);
     console.log(`- Add the repo token to Circle CI`);
@@ -173,6 +172,7 @@ module.exports = {
     console.log(`GitHub:`);
     console.log(`  ${context.github.url}`);
     console.log(`CircleCI:`);
+    console.log(`  https://circleci.com/gh/${context.github.login}/${context.githubProjectName}`);
     console.log();
 
     if (context.install) {
