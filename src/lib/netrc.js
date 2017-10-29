@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require(`debug`)(`proj:netrc`);
+const debug = require(`debug`)(`proj:lib:netrc`);
 const request = require(`request-promise-native`);
 const netrc = require(`netrc`);
 
