@@ -12,6 +12,7 @@ const nodegit = require(`nodegit`);
 const CircleCI = require(`../lib/circleci`);
 const netrc = require(`../lib/netrc`);
 const {copy, template} = require(`../lib/templating`);
+const {addAndCommit, push} = require(`../lib/git`);
 
 module.exports = {
   builder: {
@@ -64,7 +65,7 @@ module.exports = {
     debug(`Done`);
 
     debug(`Creating readme`);
-    template(`README.md`, context);
+    await template(`README.md`, context);
     debug(`Done`);
 
     debug(`creating github repo`);
@@ -109,26 +110,23 @@ module.exports = {
     debug(`Done`);
 
     debug(`Create project dotfiles (and similar)`);
-    await addAndCommit(repo, context, [
-      `.github/CONTRIBUTING.md`,
-      `.editorconfig`,
-      `.eslintrc.yml`,
-      `.gitignore`,
-      `.npmrc`,
-      `LICENSE`
-    ], `chore(tooling): create various project files`);
+    await template(`.github/CONTRIBUTING.md`, context);
+    await template(`.editorconfig`, context);
+    await template(`.eslintrc.yml`, context);
+    await template(`.gitignore`, context);
+    await template(`.npmrc`, context);
+    await template(`LICENSE`, context);
+    await addAndCommit(repo, context, `chore(tooling): create various project files`);
 
     // Reminder, we create package.json late so that greenkeeper doesn't run
     // until after Circle CI is setup
     debug(`Creating package.json`);
-    await addAndCommit(repo, context, [
-      `package.json`
-    ], `feat(package): create initial package.json`);
+    await template(`package.json`);
+    await addAndCommit(repo, context, `feat(package): create initial package.json`);
 
     debug(`Creating a Circle CI config file`);
-    await addAndCommitNoTemplate(repo, context, [
-      `circle.yml`
-    ], `chore(tooling): configure circleci`);
+    await copy(`circle.yml`);
+    await addAndCommit(repo, context, [], `chore(tooling): configure circleci`);
     debug(`Done`);
 
     debug(`Pushing package.json and project files to GitHub`);
@@ -172,72 +170,3 @@ module.exports = {
   }
 };
 
-
-/**
- * Copy files and commit them in a group
- *
- * @param {Repository} repo -
- * @param {Object} context -
- * @param {Array<string>} files -
- * @param {string} message -
- * @private
- * @returns {Promise} -
- */
-async function addAndCommit(repo, context, files, message) {
-  debug(`Creating ${files.join(`, `)}`);
-  for (const file of files) {
-    await template(file, context);
-  }
-
-  const index = await repo.refreshIndex();
-  await index.addAll();
-  await index.write();
-  await index.writeTree();
-  await kit.commit(repo, {message});
-  debug(`Done`);
-}
-
-/**
- * same as addAndCommit, but skips handlebars
- *
- * @param {Repository} repo -
- * @param {Object} context -
- * @param {Array<string>} files -
- * @param {string} message -
- * @private
- * @returns {Promise} -
- */
-async function addAndCommitNoTemplate(repo, context, files, message) {
-  debug(`Creating ${files.join(`, `)}`);
-  for (const file of files) {
-    await copy(file, context);
-  }
-
-  const index = await repo.refreshIndex();
-  await index.addAll();
-  await index.write();
-  await index.writeTree();
-  await kit.commit(repo, {message});
-  debug(`Done`);
-}
-
-/**
- * Push commits to remote repo
- * @param {Remote} remote -
- * @returns {Promise} -
- */
-async function push(remote) {
-  await remote.push([
-    `refs/heads/master:refs/heads/master`
-  ],
-  {
-    callbacks: {
-      certificateCheck() {
-        return 1;
-      },
-      credentials(url, userName) {
-        return nodegit.Cred.sshKeyFromAgent(userName);
-      }
-    }
-  });
-}
