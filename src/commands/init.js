@@ -19,25 +19,29 @@ module.exports = {
     d: {
       alias: `short-description`,
       demandOption: true,
+      description: `The short description for the README, package.json, and GitHub`,
       type: `string`
     },
     i: {
       alias: `install`,
       default: true,
+      description: `Run "npm install" after scaffolding.`,
       type: `boolean`
     },
     p: {
       alias: `package-name`,
       demandOption: true,
+      description: `Specify that package's name; because of scoped packages, we can't reliably get the name from the current directory. If your package is scoped, its GitHub repo name will be the unscoped name.`,
       type: `string`
     },
     private: {
       default: true,
+      description: `Make the GitHub repository private`,
       type: `boolean`
     }
   },
   command: `init`,
-  desc: `Initialize a new project`,
+  desc: `Scaffold a new project, push it to GitHub, and configure Circle CI`,
   async handler(context) {
     context.githubProjectName = context.packageName
       .split(`/`)
@@ -87,7 +91,6 @@ module.exports = {
     await nodegit.Branch.setUpstream(branch, `origin/master`);
     debug(`Done`);
 
-    // TODO increase parallelism for non-private projects
     debug(`Following project on Circle CI`);
     await cci.follow({
       project: context.githubProjectName,
@@ -152,11 +155,7 @@ module.exports = {
     });
     debug(`Done`);
 
-    // TODO print the URLs to github and circle CI
-
     console.log(`Reminder: to send coverage to coveralls, you need to`);
-    // TODO figure out how to follow the project on coveralls, then set the repo
-    // token via the Circle API.
     console.log(`- Follow the project on https://coveralls.io`);
     console.log(`- Add the repo token to Circle CI`);
 
