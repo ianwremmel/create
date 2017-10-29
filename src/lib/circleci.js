@@ -25,7 +25,10 @@ class CircleCI {
    * @returns {Promise<Object>} -
    */
   _request(options) {
-    const payload = Object.assign({qs: {'circle-token': netrc.host(`circleci.com`).login}}, options);
+    const payload = Object.assign({
+      json: true,
+      qs: {'circle-token': netrc.host(`circleci.com`).login}
+    }, options);
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
     return request(payload);
   }
@@ -38,6 +41,20 @@ class CircleCI {
     return this._request({
       method: `GET`,
       uri: `/me`
+    });
+  }
+
+  /**
+   * Gets details about a project
+   * @param {Object} options -
+   * @param {string} options.project -
+   * @param {string} options.username -
+   * @returns {Promise<Object>} -
+   */
+  getProject({project, username}) {
+    return this._request({
+      method: `GET`,
+      uri: `/project/github/${username}/${project}`
     });
   }
 
@@ -55,6 +72,9 @@ class CircleCI {
 
   /**
    * Follow a new project on CircleCI.
+   * @param {Object} options -
+   * @param {string} options.project -
+   * @param {string} options.username -
    * @returns {Promise<Object>} -
    */
   follow({project, username}) {

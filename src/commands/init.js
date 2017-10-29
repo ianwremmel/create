@@ -2,17 +2,21 @@
 
 /* eslint-disable max-statements */
 
-const {exec} = require(`child_process`);
+const {execSync} = require(`child_process`);
 
 const debug = require(`debug`)(`proj:command:init`);
-const GitHubAPI = require(`github`);
+
+const github = require(`../lib/github`);
 const kit = require(`nodegit-kit`);
 const nodegit = require(`nodegit`);
+const {exists} = require(`../lib/file`);
 
 const CircleCI = require(`../lib/circleci`);
 const netrc = require(`../lib/netrc`);
 const {copy, template} = require(`../lib/templating`);
-const {addAndCommit, push} = require(`../lib/git`);
+const {
+  addAndCommit, getOrCreateRemote, getOrCreateLocalRepo, push
+} = require(`../lib/git`);
 
 module.exports = {
   builder: {
@@ -56,33 +60,31 @@ module.exports = {
     debug(`Done`);
 
     debug(`Getting user profile from github`);
-    const github = new GitHubAPI({debug: context.debug});
-    github.authenticate({type: `netrc`});
     context.github = (await github.users.get({})).data;
     debug(`Done`);
 
-    debug(`Creating local git repo with empty root commit`);
-    const repo = await kit.init(`.`, {
-      commit: true,
-      message: `root`
+    debug(`Getting local repo`);
+    const repo = await getOrCreateLocalRepo();
+    debug(`Done`);
+
+    if (!await exists(`README.md`)) {
+      debug(`Creating readme`);
+      await template(`README.md`, context);
+      await kit.commit(repo, {message: `chore(docs): create initial README`});
+      debug(`Done`);
+    }
+
+    debug(`Getting remote repo`);
+    const githubRepo = await github.getOrCreateRepo({
+      description: context.shortDescription,
+      name: context.githubProjectName,
+      owner: context.github.login,
+      private: context.private
     });
     debug(`Done`);
 
-    debug(`Creating readme`);
-    await template(`README.md`, context);
-    debug(`Done`);
-
-    debug(`creating github repo`);
-    const githubRepo = (await github.repos.create({
-      description: context.shortDescription,
-      name: context.githubProjectName,
-      private: context.private
-    })).data;
-    debug(`Done`);
-
     debug(`Pushing first commit to GitHub`);
-    const remote = await nodegit.Remote.create(repo, `origin`, githubRepo.ssh_url);
-    await kit.commit(repo, {message: `chore(docs): create initial README`});
+    const remote = await getOrCreateRemote(repo, `origin`, githubRepo.ssh_url);
     await push(remote);
     debug(`Done`);
 
@@ -113,12 +115,18 @@ module.exports = {
     debug(`Done`);
 
     debug(`Create project dotfiles (and similar)`);
-    await template(`.github/CONTRIBUTING.md`, context);
-    await template(`.editorconfig`, context);
-    await template(`.eslintrc.yml`, context);
-    await template(`.gitignore`, context);
-    await template(`.npmrc`, context);
-    await template(`LICENSE`, context);
+    for (const file of [
+      `.github/CONTRIBUTING.md`,
+      `.editorconfig`,
+      `.eslintrc.yml`,
+      `.gitignore`,
+      `.npmrc`,
+      `LICENSE`
+    ]) {
+      if (!await exists(file)) {
+        template(file, context);
+      }
+    }
     await addAndCommit(repo, context, `chore(tooling): create various project files`);
 
     // Reminder, we create package.json late so that greenkeeper doesn't run
@@ -129,7 +137,7 @@ module.exports = {
 
     debug(`Creating a Circle CI config file`);
     await copy(`circle.yml`);
-    await addAndCommit(repo, context, [], `chore(tooling): configure circleci`);
+    await addAndCommit(repo, context, `chore(tooling): configure circleci`);
     debug(`Done`);
 
     debug(`Pushing package.json and project files to GitHub`);
@@ -154,18 +162,25 @@ module.exports = {
       restrictions: null
     });
     debug(`Done`);
+    console.info(require(`util`)
+      .inspect(context.circleci, {depth: null}));
 
     console.log(`Reminder: to send coverage to coveralls, you need to`);
     console.log(`- Follow the project on https://coveralls.io`);
     console.log(`- Add the repo token to Circle CI`);
+    console.log();
+    console.log(`Your project can be viewed at the following urls`);
+    console.log(`GitHub:`);
+    console.log(`  ${context.github.url}`);
+    console.log(`CircleCI:`);
+    console.log();
 
     if (context.install) {
       debug(`Kicking off npm install`);
-      exec(`npm install`);
+      execSync(`npm install`);
       debug(`done`);
     }
 
     process.stdin.unref();
   }
 };
-
