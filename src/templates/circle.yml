@@ -59,6 +59,8 @@ workflows:
   version: 2
   build:
     jobs:
+      - test-node-6
+      - test-node-8
       # Reminder: we don't want to block tests on lint, otherwise #no-push
       # prevents tests from running
       - lint
