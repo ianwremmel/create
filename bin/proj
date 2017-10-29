@@ -23,7 +23,7 @@ process.on(`unhandledRejection`, (err) => {
     .slice(2)
     .join(` `)}`;
   console.error(`Failed to execute "${cmd}"`);
-  console.error(err.stack);
+  console.error(err.stack || err.toString());
   if (argv.debug) {
     console.error(err);
   }
