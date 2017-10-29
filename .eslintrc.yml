@@ -6,3 +6,5 @@ extends:
 parserOptions:
   sourceType: "script"
 parser: babel-eslint
+rules:
+  no-warning-comments: warn

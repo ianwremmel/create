@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+'use strict';
+
+// TODO move exit code definitions to a separate file
+const E_UNHANDLED_REJECTION = 64;
+
+// eslint-disable-next-line no-unused-expressions
+const {argv} = require(`yargs`)
+  .options({
+    debug: {
+      default: false,
+      description: `Print stacktraces`,
+      type: `boolean`
+    }
+  })
+  .commandDir(`../src/commands`)
+  .demandCommand(1)
+  .help()
+  .recommendCommands();
+
+process.on(`unhandledRejection`, (err) => {
+  const cmd = `proj ${process.argv
+    .slice(2)
+    .join(` `)}`;
+  console.error(`Failed to execute "${cmd}"`);
+  console.error(err.stack);
+  if (argv.debug) {
+    console.error(err);
+  }
+  // eslint-disable-next-line no-process-exit
+  process.exit(E_UNHANDLED_REJECTION);
+});
