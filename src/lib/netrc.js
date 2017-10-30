@@ -1,8 +1,8 @@
 'use strict';
 
-const debug = require(`debug`)(`proj:lib:netrc`);
-const request = require(`request-promise-native`);
-const netrc = require(`netrc`);
+const debug = require('debug')('proj:lib:netrc');
+const request = require('request-promise-native');
+const netrc = require('netrc');
 
 exports.check = async function check(machine, testurl) {
   const config = netrc();
@@ -21,7 +21,7 @@ exports.check = async function check(machine, testurl) {
         sendImmediately: true,
         user: auth.login
       },
-      headers: {'user-agent': `request-promise-native`},
+      headers: {'user-agent': 'request-promise-native'},
       url: testurl
     };
     await request(opts);
