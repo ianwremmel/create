@@ -2,10 +2,11 @@
 
 /* eslint-disable class-methods-use-this */
 
-const request = require(`request-promise-native`);
-const netrc = require(`./netrc`);
+const request = require('request-promise-native');
 
-const CIRCLECI_API_BASE = `https://circleci.com/api/v1.1`;
+const netrc = require('./netrc');
+
+const CIRCLECI_API_BASE = 'https://circleci.com/api/v1.1';
 /**
  * Circle CI Client
  */
@@ -14,8 +15,8 @@ class CircleCI {
    * Constructor. Loads credentials from netrc
    */
   constructor() {
-    const token = netrc.host(`circleci.com`).login;
-    require(`assert`)(token);
+    const token = netrc.host('circleci.com').login;
+    require('assert')(token);
   }
 
   /**
@@ -27,7 +28,7 @@ class CircleCI {
   _request(options) {
     const payload = Object.assign({
       json: true,
-      qs: {'circle-token': netrc.host(`circleci.com`).login}
+      qs: {'circle-token': netrc.host('circleci.com').login}
     }, options);
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
     return request(payload);
@@ -39,8 +40,8 @@ class CircleCI {
    */
   getUser() {
     return this._request({
-      method: `GET`,
-      uri: `/me`
+      method: 'GET',
+      uri: '/me'
     });
   }
 
@@ -53,7 +54,7 @@ class CircleCI {
    */
   getProject({project, username}) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}`
     });
   }
@@ -65,8 +66,8 @@ class CircleCI {
    */
   listProjects() {
     return this._request({
-      method: `GET`,
-      uri: `/projects`
+      method: 'GET',
+      uri: '/projects'
     });
   }
 
@@ -79,7 +80,7 @@ class CircleCI {
    */
   follow({project, username}) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/follow`
     });
   }
@@ -93,7 +94,7 @@ class CircleCI {
    */
   listBuilds({project, username}) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}`
     });
   }
@@ -105,8 +106,8 @@ class CircleCI {
    */
   listRecentBuilds() {
     return this._request({
-      method: `GET`,
-      uri: `/recent-builds`
+      method: 'GET',
+      uri: '/recent-builds'
     });
   }
 
@@ -124,7 +125,7 @@ class CircleCI {
     buildNumber, project, username
   }) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}/${buildNumber}`
     });
   }
@@ -141,7 +142,7 @@ class CircleCI {
     buildNumber, project, username
   }) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}/${buildNumber}/artifacts`
     });
   }
@@ -158,7 +159,7 @@ class CircleCI {
     buildNumber, project, username
   }) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/retry`
     });
   }
@@ -175,7 +176,7 @@ class CircleCI {
     buildNumber, project, username
   }) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/cancel`
     });
   }
@@ -192,7 +193,7 @@ class CircleCI {
     buildNumber, project, username
   }) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/ssh-users`
     });
   }
@@ -210,7 +211,7 @@ class CircleCI {
     branch, project, username
   }) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/tree/${branch}`
     });
   }
@@ -225,7 +226,7 @@ class CircleCI {
    */
   createSshKey({project, username}) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/ssh-key`
     });
   }
@@ -239,7 +240,7 @@ class CircleCI {
    */
   listCheckoutKeys({project, username}) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}/checkout-key`
     });
   }
@@ -253,7 +254,7 @@ class CircleCI {
    */
   createCheckoutKey({project, username}) {
     return this._request({
-      method: `POST`,
+      method: 'POST',
       uri: `/project/github/${username}/${project}/checkout-key`
     });
   }
@@ -270,7 +271,7 @@ class CircleCI {
     fingerprint, project, username
   }) {
     return this._request({
-      method: `GET`,
+      method: 'GET',
       uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
     });
   }
@@ -287,7 +288,7 @@ class CircleCI {
     fingerprint, project, username
   }) {
     return this._request({
-      method: `DELETE`,
+      method: 'DELETE',
       uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
     });
   }
@@ -301,7 +302,7 @@ class CircleCI {
    */
   clearCache({project, username}) {
     return this._request({
-      method: `DELETE`,
+      method: 'DELETE',
       uri: `/project/github/${username}/${project}/build-cache`
     });
   }
@@ -314,8 +315,8 @@ class CircleCI {
   addHerokuKey(apikey) {
     return this._request({
       form: {apikey},
-      method: `POST`,
-      uri: `/user/heroku-key`
+      method: 'POST',
+      uri: '/user/heroku-key'
     });
   }
 
@@ -333,7 +334,7 @@ class CircleCI {
     return this._request({
       body: settings,
       json: true,
-      method: `PUT`,
+      method: 'PUT',
       uri: `/project/github/${username}/${project}/settings`
     });
   }

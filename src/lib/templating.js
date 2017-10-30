@@ -1,12 +1,13 @@
 'use strict';
 
-const debug = require(`debug`)(`proj:lib:templating`);
-const handlebars = require(`handlebars`);
+const path = require('path');
+
+const debug = require('debug')('proj:lib:templating');
+const handlebars = require('handlebars');
 const {
   copyFile, readFile, writeFile
-} = require(`mz/fs`);
-const mkdirp = require(`mkdirp`);
-const path = require(`path`);
+} = require('mz/fs');
+const mkdirp = require('mkdirp');
 
 /**
  * Write handlebars templates into current dir.
@@ -21,12 +22,12 @@ exports.template = async function template(filename, context) {
   let tpl;
   try {
     debug(`Checking for ${filename} with hbs extension`);
-    tpl = await readFile(path.resolve(__dirname, `..`, `templates`, `${filename}.hbs`), `utf8`);
+    tpl = await readFile(path.resolve(__dirname, '..', 'templates', `${filename}.hbs`), 'utf8');
     debug(`Found ${filename} with hbs extension`);
   }
   catch (err) {
     debug(`Checking for ${filename} without hbs extension`);
-    tpl = await readFile(path.resolve(__dirname, `..`, `templates`, filename), `utf8`);
+    tpl = await readFile(path.resolve(__dirname, '..', 'templates', filename), 'utf8');
     debug(`Found for ${filename} with hbs extension`);
   }
   const out = handlebars.compile(tpl)(context);
@@ -35,11 +36,11 @@ exports.template = async function template(filename, context) {
 
   debug(`Ensuring directory ${dir}`);
   mkdirp.sync(dir);
-  debug(`Done`);
+  debug('Done');
 
   debug(`Writing template to ${dest}`);
   await writeFile(dest, out);
-  debug(`Done`);
+  debug('Done');
 };
 
 /**
@@ -52,16 +53,16 @@ exports.template = async function template(filename, context) {
 exports.copy = async function copy(filename) {
   debug(`Copying ${filename} into project`);
 
-  const src = path.resolve(__dirname, `..`, `templates`, filename);
+  const src = path.resolve(__dirname, '..', 'templates', filename);
   const dest = path.resolve(process.cwd(), filename);
   const dir = path.dirname(dest);
 
   debug(`Ensuring directory ${dir}`);
   mkdirp.sync(dir);
-  debug(`Done`);
+  debug('Done');
 
   debug(`Copying ${src} to ${dest}`);
   await copyFile(src, dest);
-  debug(`Done`);
+  debug('Done');
 };
 
