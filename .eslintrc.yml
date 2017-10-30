@@ -8,3 +8,8 @@ parserOptions:
 parser: babel-eslint
 rules:
   no-warning-comments: warn
+  quotes:
+    - error
+    - single
+    -
+      avoidEscape: true

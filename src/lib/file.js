@@ -1,8 +1,8 @@
 'use strict';
 
-const path = require(`path`);
+const path = require('path');
 
-const fs = require(`mz/fs`);
+const fs = require('mz/fs');
 
 exports.exists = async function exists(filename) {
   const fullPath = path.resolve(process.cwd(), filename);

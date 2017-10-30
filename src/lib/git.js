@@ -1,8 +1,8 @@
 'use strict';
 
-const debug = require(`debug`)(`proj:lib:git`);
-const kit = require(`nodegit-kit`);
-const nodegit = require(`nodegit`);
+const debug = require('debug')('proj:lib:git');
+const kit = require('nodegit-kit');
+const nodegit = require('nodegit');
 
 /**
  * Copy files and commit them in a group
@@ -14,22 +14,22 @@ const nodegit = require(`nodegit`);
  * @returns {Promise} -
  */
 exports.addAndCommit = async function addAndCommit(repo, context, message) {
-  debug(`Staging all changes`);
+  debug('Staging all changes');
   const index = await repo.refreshIndex();
   await index.addAll();
   await index.write();
   await index.writeTree();
-  debug(`Done`);
+  debug('Done');
 
-  debug(`Checking for changes`);
+  debug('Checking for changes');
   const statuses = await repo.getStatus();
   if (!statuses) {
-    debug(`No files are staged, skipping commit message`);
+    debug('No files are staged, skipping commit message');
     return;
   }
-  debug(`Committing staged files`);
+  debug('Committing staged files');
   await kit.commit(repo, {message});
-  debug(`Done`);
+  debug('Done');
 };
 
 /**
@@ -39,7 +39,7 @@ exports.addAndCommit = async function addAndCommit(repo, context, message) {
  */
 exports.push = async function push(remote) {
   await remote.push([
-    `refs/heads/master:refs/heads/master`
+    'refs/heads/master:refs/heads/master'
   ],
   {
     callbacks: {
@@ -55,9 +55,9 @@ exports.push = async function push(remote) {
 
 
 exports.getLocalRepo = async function getLocalRepo() {
-  debug(`Attempting to open current directory as git repo`);
+  debug('Attempting to open current directory as git repo');
   const repo = await nodegit.Repository.open(`${process.cwd()}/.git`);
-  debug(`Done`);
+  debug('Done');
   return repo;
 };
 
@@ -70,10 +70,10 @@ exports.getOrCreateLocalRepo = async function getOrCreateLocalRepo() {
     return await exports.getLocalRepo();
   }
   catch (err) {
-    debug(`No repo found in current directory`);
-    debug(`Creating repository with empty root commit`);
+    debug('No repo found in current directory');
+    debug('Creating repository with empty root commit');
 
-    const repo = await kit.init(`.`, {
+    const repo = await kit.init('.', {
       commit: true,
       message: `root - this space intentionally left blank
 
@@ -85,24 +85,24 @@ For more details, see [Always Start With An Empty Commit](https://bit-booster.co
 for the problems this solves and a history of where the idea came from.
 `
     });
-    debug(`Done`);
+    debug('Done');
     return repo;
   }
 };
 
 exports.getGithubDetailsFromRepo = async function getGithubDetailsFromRepo() {
-  debug(`Getting github details from repo`);
+  debug('Getting github details from repo');
   const repository = await exports.getLocalRepo();
-  const origin = await repository.getRemote(`origin`);
+  const origin = await repository.getRemote('origin');
   const url = origin.url();
   const [
     owner,
     repo
-  ] = url.split(`:`)
+  ] = url.split(':')
     .pop()
-    .replace(`.git`, ``)
-    .split(`/`);
-  debug(`Done`);
+    .replace('.git', '')
+    .split('/');
+  debug('Done');
   return {
     owner,
     repo
@@ -113,7 +113,7 @@ exports.getOrCreateRemote = async function getOrCreateRemote(repo, name, url) {
   try {
     debug(`Creating remote ${name} at ${url}`);
     const remote = await nodegit.Remote.create(repo, name, url);
-    debug(`Done`);
+    debug('Done');
     return remote;
   }
   catch (err) {
@@ -123,7 +123,7 @@ exports.getOrCreateRemote = async function getOrCreateRemote(repo, name, url) {
     if (remote.url() !== url) {
       console.warn(`Remote ${name} already existed but ${remote.url()} does not match ${url}`);
     }
-    debug(`Done`);
+    debug('Done');
     return remote;
   }
 };
