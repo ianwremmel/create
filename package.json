@@ -49,7 +49,7 @@
     "@commitlint/cli": "^4.2.2",
     "@commitlint/config-angular": "^4.2.1",
     "@ianwremmel/eslint-config-base": "^1.0.0",
-    "@ianwremmel/eslint-config-standard": "^1.0.0",
+    "@ianwremmel/eslint-config-standard": "^1.1.0",
     "babel-eslint": "^8.0.1",
     "chai": "^4.1.2",
     "condition-circle": "^1.5.0",
@@ -61,8 +61,8 @@
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "mocha": "^4.0.1",
-    "nyc": "^11.2.1",
-    "semantic-release": "^8.2.0"
+    "nyc": "^11.3.0",
+    "semantic-release": "^8.2.3"
   },
   "lint-staged": {
     "*.js": "lint:eslint",
