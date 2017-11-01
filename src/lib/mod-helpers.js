@@ -35,12 +35,15 @@ exports.setOrReplaceScript = function setOrReplaceScript(pkg, {
   }
 
   if (!from.test(script)) {
-    console.warn();
-    console.warn(`Unexpected initial value for npm script "${name}". Please update it manually to`);
-    console.warn('the following:');
-    console.warn();
-    console.warn(`  ${to}`);
-    console.warn();
+    const toPattern = new RegExp(to.replace(/\$\d/g, '.*?'));
+    if (!toPattern.test(script)) {
+      console.warn();
+      console.warn(`Unexpected initial value for npm script "${name}". Please update it manually to`);
+      console.warn('the following:');
+      console.warn();
+      console.warn(`  ${to}`);
+      console.warn();
+    }
     return;
   }
 
