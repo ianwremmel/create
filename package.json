@@ -18,8 +18,8 @@
     "lint:eslint": "eslint --ignore --ignore-path .gitignore --fix",
     "lint:js": "npm run --silent lint:eslint -- .",
     "lint:deps": "npm run --silent lint:deps:missing && npm run --silent lint:deps:unused",
-    "lint:deps:missing": "dependency-check package.json src/commands/*",
-    "lint:deps:unused": "dependency-check package.json --unused --no-dev --ignore-module request --ignore-module yargs src/commands/*",
+    "lint:deps:missing": "dependency-check package.json $(find ./src -name '*.js')",
+    "lint:deps:unused": "dependency-check package.json --unused --no-dev --ignore-module request --ignore-module yargs $(find ./src -name '*.js')",
     "lint:staged": "lint-staged",
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
     "precommit": "npm run --silent lint:staged",
@@ -36,6 +36,7 @@
     "debug": "^3.1.0",
     "github": "^12.0.1",
     "handlebars": "^4.0.11",
+    "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
     "netrc": "^0.1.4",
@@ -49,7 +50,7 @@
     "@commitlint/cli": "^4.2.2",
     "@commitlint/config-angular": "^4.2.1",
     "@ianwremmel/eslint-config-base": "^1.0.0",
-    "@ianwremmel/eslint-config-standard": "^1.0.0",
+    "@ianwremmel/eslint-config-standard": "^1.1.0",
     "babel-eslint": "^8.0.1",
     "chai": "^4.1.2",
     "condition-circle": "^1.5.0",
@@ -61,8 +62,8 @@
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "mocha": "^4.0.1",
-    "nyc": "^11.2.1",
-    "semantic-release": "^8.2.0"
+    "nyc": "^11.3.0",
+    "semantic-release": "^8.2.3"
   },
   "lint-staged": {
     "*.js": "lint:eslint",
