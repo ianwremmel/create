@@ -9,7 +9,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.md]
-trim_trailing_whitespace = false
+# code blocks in lists get confused with only 2 spaces
+indent_size = 4
 
 [*.tf]
 indent_size = 4
