@@ -34,7 +34,8 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^3.1.0",
-    "github": "^12.0.1",
+    "github": "^12.0.3",
+
     "handlebars": "^4.0.11",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
@@ -46,20 +47,20 @@
     "yargs": "^10.0.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^4.2.2",
-    "@commitlint/config-angular": "^4.2.1",
+    "@commitlint/cli": "^4.3.0",
+    "@commitlint/config-angular": "^4.3.0",
     "@ianwremmel/eslint-config-base": "^1.0.0",
     "@ianwremmel/eslint-config-standard": "^1.0.0",
-    "babel-eslint": "^8.0.1",
+    "babel-eslint": "^8.0.2",
     "chai": "^4.1.2",
     "condition-circle": "^1.5.0",
     "coveralls": "^3.0.0",
     "dependency-check": "^2.9.1",
-    "eslint": "^4.10.0",
+    "eslint": "^4.11.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-mocha": "^4.11.0",
     "husky": "^0.14.3",
-    "lint-staged": "^4.3.0",
+    "lint-staged": "^5.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
     "semantic-release": "^8.2.0"
