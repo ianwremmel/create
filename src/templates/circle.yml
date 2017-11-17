@@ -65,6 +65,7 @@ workflows:
       # prevents tests from running
       - lint
       - release:
+          context: org-global
           filters:
             branches:
               only: master
