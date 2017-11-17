@@ -183,6 +183,17 @@ module.exports = {
     if (context.install) {
       debug('Kicking off npm install');
       execSync('npm install');
+      execSync('npm install --save-dev @ianwremmel/eslint-config-standard');
+      // It's being escaped for bash, not javascript
+      /* eslint-disable no-useless-escape */
+      execSync(`
+      (
+        export PKG=@ianwremmel/eslint-config-standard;
+        npm info "$PKG@latest" peerDependencies --json | command sed 's/[\{\},]//g ; s/: /@/g' | xargs npm install --save-dev "$PKG@latest"
+      )
+      `);
+      execSync('git add package.json && git commit -m "chore(deps): eslint config peer deps');
+      /* eslint-enable no-useless-escape */
       debug('done');
     }
 
