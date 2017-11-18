@@ -192,7 +192,7 @@ module.exports = {
         npm info "$PKG@latest" peerDependencies --json | command sed 's/[\{\},]//g ; s/: /@/g' | xargs npm install --save-dev "$PKG@latest"
       )
       `);
-      execSync('git add package.json && git commit -m "chore(deps): eslint config peer deps');
+      execSync('git add package.json && git commit -m "chore(deps): eslint config peer deps"');
       /* eslint-enable no-useless-escape */
       debug('done');
     }
