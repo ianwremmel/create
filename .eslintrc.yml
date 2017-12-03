@@ -13,3 +13,8 @@ rules:
     - single
     -
       avoidEscape: true
+overrides:
+  -
+    files: '*/commands/**/*.js'
+    rules:
+      require-jsdoc: off
