@@ -26,6 +26,12 @@ exports.builder = {
     description: 'Configure Circle CI to track the project',
     type: 'boolean'
   },
+      localOnly: {
+        // Reminder: as part of an implication, we can't default this to `false`
+        // and instead need to rely on implicitly casting `undefined`.
+        description: 'Setup local files but do apply remote changes. Note: Network requests will still be made to gather facts.',
+        type: 'boolean'
+      },
   owner: {
     description: 'GitHub org or username to which this project will belong. Defaults to the current GitHub user if not specified.',
     type: 'string'
@@ -65,11 +71,13 @@ exports.handler = async function handler(argv) {
   await initializeLocalRepo(githubRepoObject);
   console.log('Done');
 
+  if (!argv.localOnly) {
   console.log('Connecting local repository to GitHub...');
   await pushAndTrackBranch();
   console.log('Done');
+  }
 
-  if (argv.circle) {
+  if (!argv.localOnly && argv.circle) {
     console.log('Following project with Circle CI');
     await followWithCircle(cci, {
       project: repoName,
@@ -81,6 +89,7 @@ exports.handler = async function handler(argv) {
     console.log('Done');
   }
 
+  if (!argv.localOnly) {
   console.log('Enforcing branch protection');
   await github.repos.updateBranchProtection({
     branch: 'master',
@@ -90,16 +99,21 @@ exports.handler = async function handler(argv) {
     required_pull_request_reviews: null,
     required_status_checks: {
       contexts: [
-        // This is the default circle ci job name when circle.yml doesn't exist.
-        // We'll probably replace this check without something later in the
-        // build
+          // This is the default circle ci job name when circle.yml doesn't
+          // exist. We'll probably replace this check without something later in
+          // the build
         'ci/circleci'
       ],
       strict: true
     },
     restrictions: null
   });
+  }
 
+  if (argv.localOnly) {
+    console.log('Your project has been configured locally, but since you specified localOnly, some actions setup could not be completed');
+  }
+  else {
   console.log();
   console.log('Your project can be viewed at the following urls');
   if (githubRepoObject) {
@@ -112,5 +126,6 @@ exports.handler = async function handler(argv) {
   }
 
   console.log();
+  }
 };
 
