@@ -47,8 +47,8 @@
     "yargs": "^10.0.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^4.3.0",
-    "@commitlint/config-angular": "^4.3.0",
+    "@commitlint/cli": "^5.0.1",
+    "@commitlint/config-angular": "^5.0.1",
     "@ianwremmel/eslint-config-base": "^1.0.0",
     "@ianwremmel/eslint-config-standard": "^1.0.0",
     "babel-eslint": "^8.0.2",
@@ -60,7 +60,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-mocha": "^4.11.0",
     "husky": "^0.14.3",
-    "lint-staged": "^5.0.0",
+    "lint-staged": "^6.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
     "semantic-release": "^8.2.0"
