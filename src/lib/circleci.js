@@ -3,6 +3,7 @@
 /* eslint-disable class-methods-use-this */
 
 
+const invariant = require('invariant');
 const request = require('request-promise-native');
 
 const netrc = require('./netrc');
@@ -356,6 +357,9 @@ exports.CircleCI = CircleCI;
  * @param {string} details.username
  */
 async function followWithCircle(cci, details) {
+  invariant(details.username, 'details.username is required');
+  invariant(details.project, 'details.project is required');
+
   debug(f`Following project ${details.username}/${details.project}on Circle CI`);
   await cci.follow(details);
   debug('Done');
