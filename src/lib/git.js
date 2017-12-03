@@ -1,129 +1,109 @@
 'use strict';
 
-const debug = require('debug')('proj:lib:git');
-const kit = require('nodegit-kit');
-const nodegit = require('nodegit');
+const {exec} = require('mz/child_process');
+
+const {d: debug, f} = require('../lib/debug')(__filename);
+
+exports.getOrCreateRemoteRepo = getOrCreateRemoteRepo;
+exports.initializeLocalRepo = initializeLocalRepo;
+exports.pushAndTrackBranch = pushAndTrackBranch;
+
+const rootCommitMessage = `root - this space intentionally left blank
+
+This empty commit serves as a root for rebases early in a projects life
+cycle and prevents various git-based tools from breaking when they try
+to display data about the repository.
+
+See the link below for the problems this solves and a history of where
+the idea came from.
+
+https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/
+`;
 
 /**
- * Copy files and commit them in a group
- *
- * @param {Repository} repo -
- * @param {Object} context -
- * @param {string} message -
- * @private
- * @returns {Promise} -
+ * Creates a remote repository on GitHub
+ * @param {Object} github
+ * @param {Object} details
+ * @param {string} owner - github org or username
+ * @param {string} name - github repo name
+ * @returns {Object} - The GitHub API repo object
  */
-exports.addAndCommit = async function addAndCommit(repo, context, message) {
-  debug('Staging all changes');
-  const index = await repo.refreshIndex();
-  await index.addAll();
-  await index.write();
-  await index.writeTree();
-  debug('Done');
-
-  debug('Checking for changes');
-  const statuses = await repo.getStatus();
-  if (!statuses) {
-    debug('No files are staged, skipping commit message');
-    return;
+async function getOrCreateRemoteRepo(github, details) {
+  try {
+    debug('Creating github repo');
+    const {data: githubRepo} = await github.repos.create(details);
+    debug('Done');
+    return githubRepo;
   }
-  debug('Committing staged files');
-  await kit.commit(repo, {message});
-  debug('Done');
-};
+  catch (err) {
+    // 422 probably implies we've already got a repo by that name, so, assume
+    // this is the same repo.
+    if (err.code !== 422) {
+      throw err;
+    }
+    debug('Project already seems to exist on GitHub');
+    debug('Fetching GitHub repo details');
+    const repoDetails = {
+      owner: details.owner,
+      repo: details.name
+    };
+    const {data: githubRepo} = await github.repos.get(repoDetails);
+    debug('Done');
+    return githubRepo;
+  }
+}
 
 /**
- * Push commits to remote repo
- * @param {Remote} remote -
- * @returns {Promise} -
+ * Creates a local git repository and points its origin at githubRepoObject
+ * @param {Object} [githubRepoObject]
  */
-exports.push = async function push(remote) {
-  await remote.push([
-    'refs/heads/master:refs/heads/master'
-  ],
-  {
-    callbacks: {
-      certificateCheck() {
-        return 1;
-      },
-      credentials(url, userName) {
-        return nodegit.Cred.sshKeyFromAgent(userName);
+async function initializeLocalRepo(githubRepoObject) {
+  try {
+    debug('Checking if this project has a git repo');
+    await exec('git status');
+    debug('Git has already been initialized for this project');
+  }
+  catch (err) {
+    debug(f`Initializing git repo in ${process.cwd()}`);
+    await exec('git init');
+    debug(f`Initialized git repo in ${process.cwd()}`);
+  }
+
+  try {
+    debug('Checking if the local repo has any commits');
+    await exec('git log');
+    debug('There are already commits, not adding root commit');
+  }
+  catch (err) {
+    debug('Adding root commit');
+    await exec(`git commit --allow-empty -m "${rootCommitMessage}"`);
+    debug('Added root commit');
+  }
+
+  if (githubRepoObject) {
+    debug('Attempting to add GitHub repo as origin remote');
+    try {
+      await exec(`git remote add origin ${githubRepoObject.ssh_url}`);
+      debug('Added origin remote');
+    }
+    catch (err) {
+      if (!err.message.includes('remote origin already exists.')) {
+        debug('Could not add origin remote.');
+        debug(err);
+        throw err;
       }
+      debug('Remote origin already exists');
     }
-  });
-};
-
-
-exports.getLocalRepo = async function getLocalRepo() {
-  debug('Attempting to open current directory as git repo');
-  const repo = await nodegit.Repository.open(`${process.cwd()}/.git`);
-  debug('Done');
-  return repo;
-};
+  }
+}
 
 /**
- * Get the local repository or create a new one with an empty root commit.
- * @returns {Repository} -
+ * Pushes the local branch to the remote and sets up branch tracking
+ * @param {Object} [options]
+ * @param {string} [branch=master]
+ * @param {string} [remote=origin]
  */
-exports.getOrCreateLocalRepo = async function getOrCreateLocalRepo() {
-  try {
-    return await exports.getLocalRepo();
-  }
-  catch (err) {
-    debug('No repo found in current directory');
-    debug('Creating repository with empty root commit');
+async function pushAndTrackBranch({branch = 'master', remote = 'origin'} = {}) {
+  await exec(`git push -u ${remote} ${branch}:${branch}`);
+}
 
-    const repo = await kit.init('.', {
-      commit: true,
-      message: `root - this space intentionally left blank
-
-This empty commit serves as a root for rebases early in a projects life cycle
-and prevents various git-based tools from breaking when they try to display data
-about the repository.
-
-For more details, see [Always Start With An Empty Commit](https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/)
-for the problems this solves and a history of where the idea came from.
-`
-    });
-    debug('Done');
-    return repo;
-  }
-};
-
-exports.getGithubDetailsFromRepo = async function getGithubDetailsFromRepo() {
-  debug('Getting github details from repo');
-  const repository = await exports.getLocalRepo();
-  const origin = await repository.getRemote('origin');
-  const url = origin.url();
-  const [
-    owner,
-    repo
-  ] = url.split(':')
-    .pop()
-    .replace('.git', '')
-    .split('/');
-  debug('Done');
-  return {
-    owner,
-    repo
-  };
-};
-
-exports.getOrCreateRemote = async function getOrCreateRemote(repo, name, url) {
-  try {
-    debug(`Creating remote ${name} at ${url}`);
-    const remote = await nodegit.Remote.create(repo, name, url);
-    debug('Done');
-    return remote;
-  }
-  catch (err) {
-    debug(`Remote ${name} already exists`);
-    debug(`Opening remote ${name}`);
-    const remote = await repo.getRemote(name);
-    if (remote.url() !== url) {
-      console.warn(`Remote ${name} already existed but ${remote.url()} does not match ${url}`);
-    }
-    debug('Done');
-    return remote;
-  }
-};

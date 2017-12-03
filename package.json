@@ -41,8 +41,6 @@
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
     "netrc": "^0.1.4",
-    "nodegit": "^0.20.3",
-    "nodegit-kit": "^0.17.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "supports-color": "^5.0.1",
