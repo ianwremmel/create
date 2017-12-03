@@ -2,11 +2,16 @@
 
 /* eslint-disable class-methods-use-this */
 
+
 const request = require('request-promise-native');
 
 const netrc = require('./netrc');
+const {d: debug, f} = require('./debug')(__filename);
 
 const CIRCLECI_API_BASE = 'https://circleci.com/api/v1.1';
+
+exports.followWithCircle = followWithCircle;
+
 /**
  * Circle CI Client
  */
@@ -340,4 +345,31 @@ class CircleCI {
   }
 }
 
-module.exports = CircleCI;
+// Apparently class declarations don't hoist
+exports.CircleCI = CircleCI;
+
+/**
+ * Follow project on circle ci and configure settings
+ * @param {CircleCI} cci
+ * @param {Object} details
+ * @param {string} details.project
+ * @param {string} details.username
+ */
+async function followWithCircle(cci, details) {
+  debug(f`Following project ${details.username}/${details.project}on Circle CI`);
+  await cci.follow(details);
+  debug('Done');
+
+  debug('Enable autocancel builds, build fork PRs, and disabling secrets on fork PRs');
+  await cci.configure({
+    settings: {
+      feature_flags: {
+        'autocancel-builds': true,
+        'build-fork-prs': true,
+        'forks-receive-secret-env-vars': false
+      }
+    },
+    ...details
+  });
+  debug('Done');
+}

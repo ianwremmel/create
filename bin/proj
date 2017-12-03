@@ -5,23 +5,23 @@
 const E_UNHANDLED_REJECTION = 64;
 
 // eslint-disable-next-line no-unused-expressions
-const {argv} = require(`yargs`)
+const {argv} = require('yargs')
   .options({
     debug: {
       default: false,
-      description: `Print stacktraces`,
-      type: `boolean`
+      description: 'Print stacktraces',
+      type: 'boolean'
     }
   })
-  .commandDir(`../src/commands`)
+  .commandDir('../src/commands')
   .demandCommand(1)
   .help()
   .recommendCommands();
 
-process.on(`unhandledRejection`, (err) => {
+process.on('unhandledRejection', (err) => {
   const cmd = `proj ${process.argv
     .slice(2)
-    .join(` `)}`;
+    .join(' ')}`;
   console.error(`Failed to execute "${cmd}"`);
   console.error(err.stack || err.toString());
   if (argv.debug) {
