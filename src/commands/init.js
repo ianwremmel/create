@@ -67,16 +67,15 @@ exports.builder = function builder(yargs) {
     });
 };
 
-// // TODO package.json (use --license)
+// TODO gather facts as early as possible and move a 'facts' object around
+// // TODO package.json (use --license, --short-description)
 // // TODO eslint
 // // TODO commitlint
 // // TODO .github
 // // TODO CONTRIBUTE
 // // TODO ISSUE TEMPLATE
-// if (argv.editorconfig) {
-//   await applyEditorConfig(argv);
-// }
 // TODO --full-defaults so we don't need to opt into every single option
+// TODO update usage in main README
 
 async function applyGenericScaffolding(argv, {
   githubRepoObject,
@@ -91,7 +90,6 @@ async function applyGenericScaffolding(argv, {
 
   if (argv.readme && !await exists('README.md')) {
     template('README.md', {
-      // TODO gather facts as early as possible and move a 'facts' object around
       githubDisplayName: githubUserDetails.name,
       githubRepoName: githubRepoObject.name,
       githubUserName: githubUserDetails.login,
@@ -166,9 +164,9 @@ exports.handler = async function handler(argv) {
   });
 
   if (!argv.localOnly) {
-  debug('Pushing all changes to GitHub');
-  await exec('git push');
-  debug('Pushed all chagnes to GitHub');
+    debug('Pushing all changes to GitHub');
+    await exec('git push');
+    debug('Pushed all chagnes to GitHub');
   }
 
   if (!argv.localOnly) {
