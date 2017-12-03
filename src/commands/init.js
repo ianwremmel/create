@@ -1,11 +1,18 @@
 'use strict';
 
 const GitHubAPI = require('github');
+const {exec} = require('mz/child_process');
 
 const {CircleCI, followWithCircle} = require('../lib/circleci');
 const {
-  getOrCreateRemoteRepo, initializeLocalRepo, pushAndTrackBranch
+  addAndCommit,
+  getOrCreateRemoteRepo,
+  initializeLocalRepo,
+  pushAndTrackBranch
 } = require('../lib/git');
+const {exists} = require('../lib/file');
+const {template} = require('../lib/templating');
+const {d: debug} = require('../lib/debug')(__filename);
 
 const github = new GitHubAPI();
 if (process.env.GH_TOKEN) {
@@ -20,40 +27,96 @@ else {
 
 const cci = new CircleCI();
 
-exports.builder = {
-  circle: {
-    default: true,
-    description: 'Configure Circle CI to track the project',
-    type: 'boolean'
-  },
+exports.builder = function builder(yargs) {
+  return yargs
+    .implies('readme', 'short-description')
+    .options({
+      circle: {
+        default: true,
+        description: 'Configure Circle CI to track the project',
+        type: 'boolean'
+      },
       localOnly: {
         // Reminder: as part of an implication, we can't default this to `false`
         // and instead need to rely on implicitly casting `undefined`.
         description: 'Setup local files but do apply remote changes. Note: Network requests will still be made to gather facts.',
         type: 'boolean'
       },
-  owner: {
-    description: 'GitHub org or username to which this project will belong. Defaults to the current GitHub user if not specified.',
-    type: 'string'
-  },
-  private: {
-    default: true,
-    description: 'Should the project be public or private?',
-    type: 'boolean'
-  },
-  repoName: {
-    description: 'GitHub repository name. Defaults to the current directory if not specified',
-    type: 'string'
-  }
+      owner: {
+        description: 'GitHub org or username to which this project will belong. Defaults to the current GitHub user if not specified.',
+        type: 'string'
+      },
+      private: {
+        default: true,
+        description: 'Should the project be public or private?',
+        type: 'boolean'
+      },
+      repoName: {
+        description: 'GitHub repository name. Defaults to the current directory if not specified',
+        type: 'string'
+      },
+      shortDescription: {
+        description: 'Used in the README, at the top of the GitHub page, in package.json',
+        type: 'string'
+      }
+    });
 };
+
+// // TODO LICENSE
+// // TODO package.json
+// // TODO eslint
+// // TODO commitlint
+// // TODO .github
+// // TODO CONTRIBUTE
+// // TODO ISSUE TEMPLATE
+// if (argv.editorconfig) {
+//   await applyEditorConfig(argv);
+// }
+
+// if (argv.readme) {
+//   await applyReadme(argv);
+// }
+
+// if (argv.license) {
+//   await applyLicense
+// }
+
+async function applyGenericScaffolding(argv, {
+  githubRepoObject,
+  githubUserDetails
+}) {
+  if (argv.editorconfig && !await exists('.editorconfig')) {
+    await template('.editorconfig', {});
+    await addAndCommit([
+      '.editorconfig'
+    ], 'build(tooling): add .editorconfig');
+  }
+
+  if (argv.readme && !await exists('README.md')) {
+    template('README.md', {
+      // TODO gather facts as early as possible and move a 'facts' object around
+      githubDisplayName: githubUserDetails.name,
+      githubRepoName: githubRepoObject.name,
+      githubUserName: githubUserDetails.login,
+      shortDescription: argv.shortDescription
+    });
+
+    await addAndCommit([
+      'README.md'
+    ], 'docs(readme): add README');
+  }
+}
+
 
 exports.command = 'init';
 
-exports.desc = 'Scaffold a new project';
+exports.desc = 'Configure a project to be stored on GitHub and tracked by CircleCI';
+
+/* eslint-disable max-statements */
+/* eslint-disable complexity */
 
 exports.handler = async function handler(argv) {
-
-  const {data: githubUserDetails} = await github.users.get({});
+  const {data: githubUserDetails} = argv.localOnly ? {data: {}} : await github.users.get({});
 
   const owner = argv.owner || githubUserDetails.login;
   const repoName = argv.repoName || process.cwd()
@@ -62,6 +125,7 @@ exports.handler = async function handler(argv) {
 
   console.log('Creating GitHub repository');
   const githubRepoObject = await getOrCreateRemoteRepo(github, {
+    description: argv.shortDescription,
     name: repoName,
     owner,
     private: argv.private
@@ -72,9 +136,9 @@ exports.handler = async function handler(argv) {
   console.log('Done');
 
   if (!argv.localOnly) {
-  console.log('Connecting local repository to GitHub...');
-  await pushAndTrackBranch();
-  console.log('Done');
+    console.log('Connecting local repository to GitHub...');
+    await pushAndTrackBranch();
+    console.log('Done');
   }
 
   if (!argv.localOnly && argv.circle) {
@@ -89,43 +153,54 @@ exports.handler = async function handler(argv) {
     console.log('Done');
   }
 
-  if (!argv.localOnly) {
-  console.log('Enforcing branch protection');
-  await github.repos.updateBranchProtection({
-    branch: 'master',
-    enforce_admins: true,
+  await applyGenericScaffolding(argv, {
+    githubRepoObject,
+    githubUserDetails,
     owner,
-    repo: repoName,
-    required_pull_request_reviews: null,
-    required_status_checks: {
-      contexts: [
+    repoName
+  });
+
+  debug('Pushing all changes to GitHub');
+  await exec('git push');
+  debug('Pushed all chagnes to GitHub');
+
+  if (!argv.localOnly) {
+    console.log('Enforcing branch protection');
+    await github.repos.updateBranchProtection({
+      branch: 'master',
+      enforce_admins: true,
+      owner,
+      repo: repoName,
+      required_pull_request_reviews: null,
+      required_status_checks: {
+        contexts: [
           // This is the default circle ci job name when circle.yml doesn't
           // exist. We'll probably replace this check without something later in
           // the build
-        'ci/circleci'
-      ],
-      strict: true
-    },
-    restrictions: null
-  });
+          'ci/circleci'
+        ],
+        strict: true
+      },
+      restrictions: null
+    });
   }
 
   if (argv.localOnly) {
     console.log('Your project has been configured locally, but since you specified localOnly, some actions setup could not be completed');
   }
   else {
-  console.log();
-  console.log('Your project can be viewed at the following urls');
-  if (githubRepoObject) {
-    console.log('GitHub:');
-    console.log(`  ${githubRepoObject.html_url}`);
-  }
-  if (argv.circle) {
-    console.log('CircleCI:');
-    console.log(`  https://circleci.com/gh/${owner}/${repoName}`);
-  }
+    console.log();
+    console.log('Your project can be viewed at the following urls');
+    if (githubRepoObject) {
+      console.log('GitHub:');
+      console.log(`  ${githubRepoObject.html_url}`);
+    }
+    if (argv.circle) {
+      console.log('CircleCI:');
+      console.log(`  https://circleci.com/gh/${owner}/${repoName}`);
+    }
 
-  console.log();
+    console.log();
   }
 };
 

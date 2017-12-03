@@ -2,8 +2,9 @@
 
 const {exec} = require('mz/child_process');
 
-const {d: debug, f} = require('../lib/debug')(__filename);
+const {d: debug, f} = require('./debug')(__filename);
 
+exports.addAndCommit = addAndCommit;
 exports.getOrCreateRemoteRepo = getOrCreateRemoteRepo;
 exports.initializeLocalRepo = initializeLocalRepo;
 exports.pushAndTrackBranch = pushAndTrackBranch;
@@ -19,6 +20,25 @@ the idea came from.
 
 https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/
 `;
+
+/**
+ * Add and commit a set of files
+ * @param {Array<string>} files
+ * @param {string} msg
+ */
+async function addAndCommit(files, msg) {
+  debug('Resetting any staged files');
+  await exec('git reset .');
+  debug('Done');
+
+  debug('Adding files', files);
+  await exec(`git add ${files.join(' ')}`);
+  debug('Added files');
+
+  debug('Committing');
+  await exec(`git commit -m '${msg}'`);
+  debug('Done');
+}
 
 /**
  * Creates a remote repository on GitHub
