@@ -30,11 +30,16 @@ const cci = new CircleCI();
 exports.builder = function builder(yargs) {
   return yargs
     .implies('readme', 'short-description')
+    .implies('license', 'readme')
     .options({
       circle: {
         default: true,
         description: 'Configure Circle CI to track the project',
         type: 'boolean'
+      },
+      license: {
+        description: 'Specify a SPDX license type. If MIT, the MIT license file will be included, otherwise you will need to add your own license file later',
+        type: 'string'
       },
       localOnly: {
         // Reminder: as part of an implication, we can't default this to `false`
@@ -62,8 +67,7 @@ exports.builder = function builder(yargs) {
     });
 };
 
-// // TODO LICENSE
-// // TODO package.json
+// // TODO package.json (use --license)
 // // TODO eslint
 // // TODO commitlint
 // // TODO .github
@@ -72,14 +76,7 @@ exports.builder = function builder(yargs) {
 // if (argv.editorconfig) {
 //   await applyEditorConfig(argv);
 // }
-
-// if (argv.readme) {
-//   await applyReadme(argv);
-// }
-
-// if (argv.license) {
-//   await applyLicense
-// }
+// TODO --full-defaults so we don't need to opt into every single option
 
 async function applyGenericScaffolding(argv, {
   githubRepoObject,
@@ -98,8 +95,16 @@ async function applyGenericScaffolding(argv, {
       githubDisplayName: githubUserDetails.name,
       githubRepoName: githubRepoObject.name,
       githubUserName: githubUserDetails.login,
+      license: argv.license || 'UNKNOWN',
       shortDescription: argv.shortDescription
     });
+
+    if (argv.license === 'MIT' && !await exists('LICENSE')) {
+      await template('LICENSE', {licenseHolderDisplayName: githubUserDetails.name});
+      await addAndCommit([
+        'LICENSE'
+      ], 'docs(readme): add LICENSE');
+    }
 
     await addAndCommit([
       'README.md'
@@ -116,7 +121,7 @@ exports.desc = 'Configure a project to be stored on GitHub and tracked by Circle
 /* eslint-disable complexity */
 
 exports.handler = async function handler(argv) {
-  const {data: githubUserDetails} = argv.localOnly ? {data: {}} : await github.users.get({});
+  const {data: githubUserDetails} = await github.users.get({});
 
   const owner = argv.owner || githubUserDetails.login;
   const repoName = argv.repoName || process.cwd()
@@ -160,9 +165,11 @@ exports.handler = async function handler(argv) {
     repoName
   });
 
+  if (!argv.localOnly) {
   debug('Pushing all changes to GitHub');
   await exec('git push');
   debug('Pushed all chagnes to GitHub');
+  }
 
   if (!argv.localOnly) {
     console.log('Enforcing branch protection');
