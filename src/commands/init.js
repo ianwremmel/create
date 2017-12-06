@@ -5,14 +5,17 @@ const {exec} = require('mz/child_process');
 
 const {CircleCI, followWithCircle} = require('../lib/circleci');
 const {
-  addAndCommit,
   getOrCreateRemoteRepo,
   initializeLocalRepo,
   pushAndTrackBranch
 } = require('../lib/git');
-const {exists} = require('../lib/file');
-const {template} = require('../lib/templating');
+const {
+  extractCircleCommonFacts,
+  extractCreateRepoFacts,
+  gatherFacts
+} = require('../lib/scaffolding/facts');
 const {d: debug} = require('../lib/debug')(__filename);
+const applyCommonScaffolding = require('../lib/scaffolding/common');
 
 const github = new GitHubAPI();
 if (process.env.GH_TOKEN) {
@@ -37,7 +40,13 @@ exports.builder = function builder(yargs) {
         description: 'Configure Circle CI to track the project',
         type: 'boolean'
       },
+      engine: {
+        default: 6,
+        description: 'Minimum node version required for this project. Ignore if not a JavaScript project',
+        type: 'number'
+      },
       license: {
+        default: 'UNLICENSED',
         description: 'Specify a SPDX license type. If MIT, the MIT license file will be included, otherwise you will need to add your own license file later',
         type: 'string'
       },
@@ -67,50 +76,6 @@ exports.builder = function builder(yargs) {
     });
 };
 
-// TODO gather facts as early as possible and move a 'facts' object around
-// // TODO package.json (use --license, --short-description)
-// // TODO eslint
-// // TODO commitlint
-// // TODO .github
-// // TODO CONTRIBUTE
-// // TODO ISSUE TEMPLATE
-// TODO --full-defaults so we don't need to opt into every single option
-// TODO update usage in main README
-
-async function applyGenericScaffolding(argv, {
-  githubRepoObject,
-  githubUserDetails
-}) {
-  if (argv.editorconfig && !await exists('.editorconfig')) {
-    await template('.editorconfig', {});
-    await addAndCommit([
-      '.editorconfig'
-    ], 'build(tooling): add .editorconfig');
-  }
-
-  if (argv.readme && !await exists('README.md')) {
-    template('README.md', {
-      githubDisplayName: githubUserDetails.name,
-      githubRepoName: githubRepoObject.name,
-      githubUserName: githubUserDetails.login,
-      license: argv.license || 'UNKNOWN',
-      shortDescription: argv.shortDescription
-    });
-
-    if (argv.license === 'MIT' && !await exists('LICENSE')) {
-      await template('LICENSE', {licenseHolderDisplayName: githubUserDetails.name});
-      await addAndCommit([
-        'LICENSE'
-      ], 'docs(readme): add LICENSE');
-    }
-
-    await addAndCommit([
-      'README.md'
-    ], 'docs(readme): add README');
-  }
-}
-
-
 exports.command = 'init';
 
 exports.desc = 'Configure a project to be stored on GitHub and tracked by CircleCI';
@@ -119,23 +84,13 @@ exports.desc = 'Configure a project to be stored on GitHub and tracked by Circle
 /* eslint-disable complexity */
 
 exports.handler = async function handler(argv) {
-  const {data: githubUserDetails} = await github.users.get({});
-
-  const owner = argv.owner || githubUserDetails.login;
-  const repoName = argv.repoName || process.cwd()
-    .split('/')
-    .pop();
+  const facts = await gatherFacts({github}, argv);
 
   console.log('Creating GitHub repository');
-  const githubRepoObject = await getOrCreateRemoteRepo(github, {
-    description: argv.shortDescription,
-    name: repoName,
-    owner,
-    private: argv.private
-  });
+  facts.githubRepoObject = await getOrCreateRemoteRepo(github, extractCreateRepoFacts(facts));
 
   console.log('Initializing local repository...');
-  await initializeLocalRepo(githubRepoObject);
+  await initializeLocalRepo(facts.githubRepoObject);
   console.log('Done');
 
   if (!argv.localOnly) {
@@ -146,22 +101,11 @@ exports.handler = async function handler(argv) {
 
   if (!argv.localOnly && argv.circle) {
     console.log('Following project with Circle CI');
-    await followWithCircle(cci, {
-      project: repoName,
-      // This might not work if `owner` is an org. We might need to always rely
-      // on `githubUserDetails.login`, but I won't really be able to confirm
-      // that until actually having a reason to work with an org.
-      username: owner
-    });
+    await followWithCircle(cci, extractCircleCommonFacts(facts));
     console.log('Done');
   }
 
-  await applyGenericScaffolding(argv, {
-    githubRepoObject,
-    githubUserDetails,
-    owner,
-    repoName
-  });
+  await applyCommonScaffolding(argv, facts);
 
   if (!argv.localOnly) {
     debug('Pushing all changes to GitHub');
@@ -174,8 +118,8 @@ exports.handler = async function handler(argv) {
     await github.repos.updateBranchProtection({
       branch: 'master',
       enforce_admins: true,
-      owner,
-      repo: repoName,
+      owner: facts.owner,
+      repo: facts.repoName,
       required_pull_request_reviews: null,
       required_status_checks: {
         contexts: [
@@ -196,16 +140,15 @@ exports.handler = async function handler(argv) {
   else {
     console.log();
     console.log('Your project can be viewed at the following urls');
-    if (githubRepoObject) {
+    if (facts.githubRepoObject) {
       console.log('GitHub:');
-      console.log(`  ${githubRepoObject.html_url}`);
+      console.log(`  ${facts.githubRepoObject.html_url}`);
     }
     if (argv.circle) {
       console.log('CircleCI:');
-      console.log(`  https://circleci.com/gh/${owner}/${repoName}`);
+      console.log(`  https://circleci.com/gh/${facts.owner}/${facts.repoName}`);
     }
 
     console.log();
   }
 };
-
