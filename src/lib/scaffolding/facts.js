@@ -36,19 +36,36 @@ function extractLicenseFacts({githubUserObject}) {
 
 exports.extractLicenseFacts = extractLicenseFacts;
 
+function extractPackageJSONFacts({
+  githubUserObject, githubRepoObject, packageName, repoName, shortDescription
+}) {
+  return {
+    authorEmail: githubUserObject.email,
+    authorName: githubUserObject.name,
+    name: repoName,
+    packageName,
+    repository: githubRepoObject.git_url,
+    shortDescription
+  };
+}
+exports.extractPackageJSONFacts = extractPackageJSONFacts;
+
+
 /**
  * Extracts facts for the readme template
  * @param {Facts} facts
  * @returns {GithubReadmeFacts}
  */
 function extractReadmeFacts({
-  githubRepoObject, githubUserObject, license, shortDescription
+  githubRepoObject, githubUserObject, javascript, license, packageName, shortDescription
 }) {
   return {
     githubDisplayName: githubUserObject.name,
     githubRepoName: githubRepoObject.name,
     githubUserName: githubUserObject.login,
+    javascript,
     license,
+    packageName,
     shortDescription
   };
 }
@@ -76,6 +93,7 @@ async function gatherFacts({github}, argv) {
     githubUserObject,
     license: argv.license.toUpperCase(),
     owner: githubUserObject.login,
+    packageName: `@${githubUserObject.login}/${repoName}`,
     repoName
   };
 }

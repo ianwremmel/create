@@ -4,18 +4,19 @@ const GitHubAPI = require('github');
 const {exec} = require('mz/child_process');
 
 const {CircleCI, followWithCircle} = require('../lib/circleci');
+const {d: debug} = require('../lib/debug')(__filename);
 const {
   getOrCreateRemoteRepo,
   initializeLocalRepo,
   pushAndTrackBranch
 } = require('../lib/git');
+const applyCommonScaffolding = require('../lib/scaffolding/common');
 const {
   extractCircleCommonFacts,
   extractCreateRepoFacts,
   gatherFacts
 } = require('../lib/scaffolding/facts');
-const {d: debug} = require('../lib/debug')(__filename);
-const applyCommonScaffolding = require('../lib/scaffolding/common');
+const applyJavaScriptScaffolding = require('../lib/scaffolding/javascript');
 
 const github = new GitHubAPI();
 if (process.env.GH_TOKEN) {
@@ -105,7 +106,15 @@ exports.handler = async function handler(argv) {
     console.log('Done');
   }
 
+  debug('Applying common scaffolding');
   await applyCommonScaffolding(argv, facts);
+  debug('Applied common scaffolding');
+
+  if (argv.javascript) {
+    debug('Applying common scaffolding');
+    await applyJavaScriptScaffolding(argv, facts);
+    debug('Applied common scaffolding');
+  }
 
   if (!argv.localOnly) {
     debug('Pushing all changes to GitHub');
