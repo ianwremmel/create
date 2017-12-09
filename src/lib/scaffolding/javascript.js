@@ -34,6 +34,13 @@ module.exports = async function applyJavaScriptScaffolding(options, facts) {
 };
 
 async function setupPackageJson(argv, facts) {
+  debug('checking if npmrc omits package-lock.json');
+  const npmrc = await readFileOrEmpty('.npmrc');
+  if (!npmrc.includes('package-lock')) {
+    debug('adding "node_modules" to npmrc');
+    await writeFile('.npmrc', `package-lock=false\n${npmrc}`);
+  }
+
   if (!await exists('package.json')) {
     debug('creating initial package.json');
     await template('package.json', extractPackageJSONFacts(facts));
@@ -67,9 +74,144 @@ async function setupPackageJson(argv, facts) {
   debug('installing eslint config peer dependencies');
   await npmInstallPeersOf('@ianwremmel/eslint-config-standard');
 
+  tx = wrap(tx, (fn, p, shift) => Promise.resolve(fn(p, shift))
+    // eslint-disable-next-line complexity
+    .then((pkg) => {
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'commitmsg',
+          to: 'npm run --silent lint:commitmsg'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "commitmsg"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint',
+          to: 'npm run --silent lint:js && npm run --silent lint:changelog && npm run --silent lint:deps'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:changelog',
+          to: 'commitlint --from origin/master --to HEAD'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:changelog"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:commitmsg',
+          to: 'commitlint -e'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:commitmsg"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:eslint',
+          to: 'eslint --ignore --ignore-path .gitignore'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:eslint"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:js',
+          to: 'npm run --silent lint:eslint -- .'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:js"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:deps',
+          to: 'npm run --silent lint:deps:missing && npm run --silent lint:deps:unused'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:deps"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:deps:missing',
+          to: 'dependency-check package.json'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:deps:missing"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:deps:unused',
+          to: 'dependency-check package.json --unused --no-dev'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:deps:unused"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'lint:staged',
+          to: 'lint-staged'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "lint:staged"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'precommit',
+          to: 'npm run --silent lint:staged'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "precommit"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'test',
+          to: "mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'"
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "test"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
+          name: 'semantic-release',
+          to: 'semantic-release pre && npm publish && semantic-release post'
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "semantic-release"');
+        console.warn(err);
+      }
+      return pkg;
+    }));
+
   // TODO add eslintrc
   // TODO add commitlint.config.js
-  // TODO set scripts via pkgShift instead of template
 
   if (argv.coverage) {
     // TODO gitignore: .nyc_output
@@ -81,18 +223,30 @@ async function setupPackageJson(argv, facts) {
       'nyc'
     ]);
 
-    tx = wrap(tx, (fn, pkg, shift) => {
-      debug('inserting nyc in front of test script');
-      shift.api.setOrReplaceScript(pkg, {
-        from: /^(mocha.*?)$/,
-        name: 'test',
-        to: 'nyc $1'
-      });
+    tx = wrap(tx, (fn, p, shift) => Promise.resolve(fn(p, shift))
+      .then((pkg) => {
+        debug('inserting nyc in front of test script');
+        try {
+          shift.api.setOrReplaceScript(pkg, {
+            name: 'coveralls',
+            to: 'nyc report --reporter=text-lcov | coveralls'
+          });
+        }
+        catch (err) {
+          console.warn('Could not set script "coveralls"');
+          console.warn(err);
+        }
 
-      debug('inserted nyc in front of test script');
+        shift.api.setOrReplaceScript(pkg, {
+          from: /^(mocha.*?)$/,
+          name: 'test',
+          // FIXME replacer doesn't work
+          to: 'nyc --reporter=text $1'
+        });
 
-      return fn(pkg, shift);
-    });
+        debug('inserted nyc in front of test script');
+        return pkg;
+      }));
   }
 
   if (argv.circle) {
@@ -100,15 +254,15 @@ async function setupPackageJson(argv, facts) {
     await npmInstallDev([
       'condition-circle'
     ]);
-    tx = wrap(tx, (fn, pkg, shift) => {
-      debug('checking if package has a verifyCondition');
-      if (!has(pkg, 'release.verifyConditions')) {
-        debug('setting verifyCondition to condition-circle');
-        set(pkg, 'release.verifyConditions', 'condition-circle');
-      }
-
-      return fn(pkg, shift);
-    });
+    tx = wrap(tx, (fn, p, shift) => Promise.resolve(fn(p, shift))
+      .then((pkg) => {
+        debug('checking if package has a verifyCondition');
+        if (!has(pkg, 'release.verifyConditions')) {
+          debug('setting verifyCondition to condition-circle');
+          set(pkg, 'release.verifyConditions', 'condition-circle');
+        }
+        return pkg;
+      }));
 
     // TODO create circle.yml
     // TODO rely on argv.engine to determine which test suites to add
@@ -123,13 +277,6 @@ async function setupPackageJson(argv, facts) {
   if (!gitignore.includes('node_modules')) {
     debug('adding "node_modules" to gitignore');
     await writeFile('.gitignore', `node_modules\n${gitignore}`);
-  }
-
-  debug('checking if npmrc omits package-lock.json');
-  const npmrc = await readFileOrEmpty('.npmrc');
-  if (!npmrc.includes('package-lock')) {
-    debug('adding "node_modules" to npmrc');
-    await writeFile('.npmrc', `package-lock=false\n${npmrc}`);
   }
 
   debug('commit package.json, .npmrc, .gitignore');

@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO move all meaninful code to lib
+// TODO make javascript a subcommand
+
 const GitHubAPI = require('github');
 const {exec} = require('mz/child_process');
 
@@ -41,9 +44,14 @@ exports.builder = function builder(yargs) {
         description: 'Configure Circle CI to track the project',
         type: 'boolean'
       },
+      coverage: {
+        default: true,
+        description: 'Configure tests to collect code coverage',
+        type: 'boolean'
+      },
       engine: {
         default: 6,
-        description: 'Minimum node version required for this project. Ignore if not a JavaScript project',
+        description: 'Minimum node version required for this project. Ignored if not a JavaScript project',
         type: 'number'
       },
       license: {
@@ -119,7 +127,7 @@ exports.handler = async function handler(argv) {
   if (!argv.localOnly) {
     debug('Pushing all changes to GitHub');
     await exec('git push');
-    debug('Pushed all chagnes to GitHub');
+    debug('Pushed all changes to GitHub');
   }
 
   if (!argv.localOnly) {

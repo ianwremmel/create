@@ -8,21 +8,7 @@
     "url": "<%= repository %>"
   },
   "scripts": {
-    "commitmsg": "npm run --silent lint:commitmsg",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "lint": "npm run --silent lint:js && npm run --silent lint:changelog && npm run --silent lint:deps",
-    "lint:changelog": "commitlint --from origin/master --to HEAD",
-    "lint:commitmsg": "commitlint -e",
-    "lint:eslint": "eslint --ignore --ignore-path .gitignore",
-    "lint:js": "npm run --silent lint:eslint -- .",
-    "lint:deps": "npm run --silent lint:deps:missing && npm run --silent lint:deps:unused",
-    "lint:deps:missing": "dependency-check package.json",
-    "lint:deps:unused": "dependency-check package.json --unused --no-dev",
-    "lint:staged": "lint-staged",
 
-    "precommit": "npm run --silent lint:staged",
-    "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "engines": {},
   "keywords": [],
