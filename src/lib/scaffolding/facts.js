@@ -57,9 +57,10 @@ exports.extractPackageJSONFacts = extractPackageJSONFacts;
  * @returns {GithubReadmeFacts}
  */
 function extractReadmeFacts({
-  githubRepoObject, githubUserObject, javascript, license, packageName, shortDescription
+  coverage, githubRepoObject, githubUserObject, javascript, license, packageName, shortDescription
 }) {
   return {
+    coverage,
     githubDisplayName: githubUserObject.name,
     githubRepoName: githubRepoObject.name,
     githubUserName: githubUserObject.login,

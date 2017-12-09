@@ -199,6 +199,18 @@ async function setupPackageJson(argv, facts) {
       }
       try {
         shift.api.setOrReplaceScript(pkg, {
+          name: 'mocha-reporter-options',
+          // Not actually a template curly
+          // eslint-disable-next-line no-template-curly-in-string
+          to: "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/mocha.xml'"
+        });
+      }
+      catch (err) {
+        console.warn('Could not set script "mocha-reporter-options"');
+        console.warn(err);
+      }
+      try {
+        shift.api.setOrReplaceScript(pkg, {
           name: 'semantic-release',
           to: 'semantic-release pre && npm publish && semantic-release post'
         });
@@ -210,13 +222,20 @@ async function setupPackageJson(argv, facts) {
       return pkg;
     }));
 
-  // TODO add eslintrc
-  // TODO add commitlint.config.js
+  if (!await exists('.eslintrc.yml')) {
+    await template('.eslintrc.yml');
+  }
+
+  if (!await exists('commitlint.config.js')) {
+    await template('commitlint.config.js');
+  }
 
   if (argv.coverage) {
-    // TODO gitignore: .nyc_output
-    // TODO gitignore: coverage
-    // TODO add coveralls badge to readme
+    await addToGitIgnore([
+      '.nyc_output',
+      'coverage'
+    ]);
+
     debug('installing code coverage depencies');
     await npmInstallDev([
       'coveralls',
@@ -266,23 +285,35 @@ async function setupPackageJson(argv, facts) {
 
     // TODO create circle.yml
     // TODO rely on argv.engine to determine which test suites to add
+    // TODO detect ENOCHANGE sem rel
   }
+
+  tx = wrap(tx, (fn, p, shift) => Promise.resolve(fn(p, shift))
+    .then((pkg) => {
+      debug('Sorting package.json scripts');
+      const keys = Object.keys(pkg.scripts)
+        .sort();
+
+      pkg.scripts = keys.reduce((acc, key) => {
+        acc[key] = pkg.scripts[key];
+        return acc;
+      }, {});
+      return pkg;
+    }));
+
 
   let pkg = JSON.parse(await readFile('package.json'));
   pkg = await pkgShift(tx, pkg);
   await writeFile('package.json', `${JSON.stringify(pkg, null, 2)}\n`);
 
-  debug('checking if gitignore includes "node_modules"');
-  const gitignore = await readFileOrEmpty('.gitignore');
-  if (!gitignore.includes('node_modules')) {
-    debug('adding "node_modules" to gitignore');
-    await writeFile('.gitignore', `node_modules\n${gitignore}`);
-  }
+  await addToGitIgnore([
+    'node_modules'
+  ]);
 
   debug('commit package.json, .npmrc, .gitignore');
   await addAndCommit([
     '.gitignore'
-  ], 'build(git): add node_modules to .gitignore');
+  ], 'build(git): update initial gitignore');
   await addAndCommit([
     '.npmrc',
     'package.json'
@@ -299,4 +330,19 @@ async function readFileOrEmpty(filename) {
     }
     throw err;
   }
+}
+
+async function addToGitIgnore(ignored = []) {
+  debug('reading .gitignore');
+  const raw = String(await readFileOrEmpty('.gitignore'));
+  const gitignore = new Set(raw.split('\n'));
+
+  debug('adding ${ignored.join(', ') to .gitignore');
+  for (const ignore of ignored) {
+    gitignore.add(ignore);
+  }
+
+  debug('writing .gitignore');
+  await writeFile('.gitignore', Array.from(gitignore)
+    .join('\n'));
 }
