@@ -37,10 +37,10 @@ function extractLicenseFacts({githubUserObject}) {
 exports.extractLicenseFacts = extractLicenseFacts;
 
 function extractPackageJSONFacts({
-  githubUserObject, githubRepoObject, packageName, repoName, shortDescription
+  githubPublicEmail, githubUserObject, githubRepoObject, packageName, repoName, shortDescription
 }) {
   return {
-    authorEmail: githubUserObject.email,
+    authorEmail: githubPublicEmail,
     authorName: githubUserObject.name,
     name: repoName,
     packageName,
@@ -88,15 +88,21 @@ async function gatherFacts({github}, argv) {
     .pop();
 
   const {data: githubUserObject} = await github.users.get({});
+  const {data: githubPublicEmails} = await github.users.getPublicEmails({});
 
-  return {
+  const githubPublicEmail = (githubPublicEmails.find(({primary}) => primary) || githubPublicEmails[0]).email;
+  const facts = {
     ...argv,
+    githubPublicEmail,
+    githubPublicEmails,
     githubUserObject,
     license: argv.license.toUpperCase(),
     owner: githubUserObject.login,
     packageName: `@${githubUserObject.login}/${repoName}`,
     repoName
   };
+
+  return facts;
 }
 
 exports.gatherFacts = gatherFacts;

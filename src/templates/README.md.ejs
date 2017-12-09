@@ -10,7 +10,7 @@
 <%= javascript && [
   `[![npm (scoped)](https://img.shields.io/npm/v/@${githubUserName}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${githubUserName}/${githubRepoName})`,
   `[![npm](https://img.shields.io/npm/dm/@${githubUserName}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${githubUserName}/${githubRepoName})`
-]%>
+].join('\n') %>
 
 <%= javascript && [
   `[![Greenkeeper badge](https://badges.greenkeeper.io/${githubUserName}/${githubRepoName}.svg)](https://greenkeeper.io/)`,

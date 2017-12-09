@@ -6,15 +6,6 @@
 // FIXME split into functions
 /* eslint-disable max-statements */
 
-// TODO addAndCommit should accept create and update strings
-
-// // TODO .github
-// // TODO CONTRIBUTE
-// // TODO ISSUE TEMPLATE
-// TODO --full-defaults so we don't need to opt into every single option
-// TODO update usage in main README
-
-
 const {
   has, set, wrap
 } = require('lodash');
@@ -259,7 +250,6 @@ async function setupPackageJson(argv, facts) {
         shift.api.setOrReplaceScript(pkg, {
           from: /^(mocha.*?)$/,
           name: 'test',
-          // FIXME replacer doesn't work
           to: 'nyc --reporter=text $1'
         });
 
