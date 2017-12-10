@@ -54,7 +54,7 @@
     "@ianwremmel/eslint-config-standard": "^1.2.0",
     "babel-eslint": "^8.0.2",
     "chai": "^4.1.2",
-    "condition-circle": "^1.5.0",
+    "condition-circle": "^1.6.0",
     "coveralls": "^3.0.0",
     "dependency-check": "^2.9.1",
     "eslint": "^4.11.0",
