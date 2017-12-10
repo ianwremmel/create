@@ -41,7 +41,9 @@ jobs:
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              npm run semantic-release || true
+              # According to the sematic release code, this command will not
+              # when there are no changes
+              npm run semantic-release
             fi
       - save_cache: *save_cache
 

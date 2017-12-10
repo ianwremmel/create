@@ -18,13 +18,13 @@
     "lint:eslint": "eslint --ignore --ignore-path .gitignore --fix",
     "lint:js": "npm run --silent lint:eslint -- .",
     "lint:deps": "npm run --silent lint:deps:missing && npm run --silent lint:deps:unused",
-    "lint:deps:missing": "dependency-check package.json src/commands/*",
-    "lint:deps:unused": "dependency-check package.json --unused --no-dev --ignore-module request --ignore-module yargs src/commands/*",
+    "lint:deps:missing": "echo 'skipping dep check because acorn does not handle spread in Objects' # dependency-check package.json src/commands/*",
+    "lint:deps:unused": "echo 'skipping dep check because acorn does not handle spread in Objects' # dependency-check package.json --unused --no-dev --ignore-module request --ignore-module yargs src/commands/*",
     "lint:staged": "lint-staged",
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
     "precommit": "npm run --silent lint:staged",
     "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "engines": {
     "node": ">=8.5.0"
@@ -33,24 +33,25 @@
   "author": "Ian W. Remmel <design@ianwremmel.com>",
   "license": "MIT",
   "dependencies": {
+    "@ianwremmel/pkgshift": "^1.1.1",
+    "chalk": "^2.3.0",
     "debug": "^3.1.0",
-    "github": "^13.0.1",
-
-    "handlebars": "^4.0.11",
+    "github": "^12.0.3",
+    "invariant": "^2.2.2",
+    "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
     "netrc": "^0.1.4",
-    "nodegit": "^0.20.3",
-    "nodegit-kit": "^0.17.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
+    "supports-color": "^5.0.1",
     "yargs": "^10.0.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^5.0.1",
     "@commitlint/config-angular": "^5.0.1",
     "@ianwremmel/eslint-config-base": "^1.0.0",
-    "@ianwremmel/eslint-config-standard": "^1.0.0",
+    "@ianwremmel/eslint-config-standard": "^1.2.0",
     "babel-eslint": "^8.0.2",
     "chai": "^4.1.2",
     "condition-circle": "^1.5.0",
@@ -63,7 +64,7 @@
     "lint-staged": "^6.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
-    "semantic-release": "^8.2.0"
+    "semantic-release": "^11.0.1"
   },
   "lint-staged": {
     "*.js": "lint:eslint",

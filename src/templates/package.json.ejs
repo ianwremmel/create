@@ -1,0 +1,29 @@
+{
+  "name": "<%= packageName %>",
+  "version": "0.0.0-development",
+  "description": "<%= shortDescription %>",
+  "bin": {},
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "<%= repository %>"
+  },
+  "scripts": {
+
+  },
+  "engines": {},
+  "keywords": [],
+  "author": "<%= authorName %> <<%= authorEmail %>>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "condition-circle": "^1.5.0"
+  },
+  "lint-staged": {
+    "*.js": "lint:eslint",
+    "bin/**": "lint:eslint"
+  },
+  "release": {
+    "verifyConditions": "condition-circle"
+  }
+}
