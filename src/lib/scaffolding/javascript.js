@@ -60,7 +60,7 @@ async function setupPackageJson(argv, facts) {
     'husky',
     'lint-staged',
     'mocha',
-    'semantic-release'
+    'semantic-release@next'
   ]);
   debug('installing eslint config peer dependencies');
   await npmInstallPeersOf('@ianwremmel/eslint-config-standard');
@@ -215,10 +215,16 @@ async function setupPackageJson(argv, facts) {
 
   if (!await exists('.eslintrc.yml')) {
     await template('.eslintrc.yml');
+    await addAndCommit([
+      '.eslintrc.yml'
+    ], 'build(eslint): add eslint config');
   }
 
   if (!await exists('commitlint.config.js')) {
     await template('commitlint.config.js');
+    await addAndCommit([
+      'commitlint.config.js'
+    ], 'ci(commitlint): add commitlint config');
   }
 
   if (argv.coverage) {
@@ -272,10 +278,6 @@ async function setupPackageJson(argv, facts) {
         }
         return pkg;
       }));
-
-    // TODO create circle.yml
-    // TODO rely on argv.engine to determine which test suites to add
-    // TODO detect ENOCHANGE sem rel
   }
 
   tx = wrap(tx, (fn, p, shift) => Promise.resolve(fn(p, shift))
