@@ -24,7 +24,7 @@
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
     "precommit": "npm run --silent lint:staged",
     "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "engines": {
     "node": ">=8.5.0"
@@ -64,7 +64,7 @@
     "lint-staged": "^6.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
-    "semantic-release": "^8.2.0"
+    "semantic-release": "^11.0.1"
   },
   "lint-staged": {
     "*.js": "lint:eslint",
