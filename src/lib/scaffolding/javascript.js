@@ -336,5 +336,6 @@ async function addToGitIgnore(ignored = []) {
 
   debug('writing .gitignore');
   await writeFile('.gitignore', Array.from(gitignore)
+    .filter(Boolean)
     .join('\n'));
 }
