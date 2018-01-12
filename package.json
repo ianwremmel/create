@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^5.0.1",
-    "@commitlint/config-angular": "^5.0.1",
+    "@commitlint/config-angular": "^6.0.2",
     "@ianwremmel/eslint-config-base": "^1.0.0",
     "@ianwremmel/eslint-config-standard": "^1.2.0",
     "babel-eslint": "^8.0.2",
