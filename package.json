@@ -48,7 +48,7 @@
     "yargs": "^10.0.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^5.0.1",
+    "@commitlint/cli": "^6.0.2",
     "@commitlint/config-angular": "^6.0.2",
     "@ianwremmel/eslint-config-base": "^1.0.0",
     "@ianwremmel/eslint-config-standard": "^1.2.0",
