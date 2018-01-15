@@ -64,7 +64,7 @@
     "lint-staged": "^6.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
-    "semantic-release": "^11.0.1"
+    "semantic-release": "^12.2.2"
   },
   "lint-staged": {
     "*.js": "lint:eslint",
