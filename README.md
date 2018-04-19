@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/github/license/ianwremmel/proj.svg)](https://github.com/ianwremmel/proj/blob/master/LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/ianwremmel/proj.svg?token=b69615dc91154605c9158b200b6477769189ed9a1dabbb53815b37d950bcdbd9&ts=1509213245851)](https://greenkeeper.io/)
+[![Dependabot badge](https://img.shields.io/badge/Dependabot-active-brightgreen.svg)](https://dependabot.com/)
 [![dependencies Status](https://david-dm.org/ianwremmel/proj/status.svg)](https://david-dm.org/ianwremmel/proj)
 [![devDependencies Status](https://david-dm.org/ianwremmel/proj/dev-status.svg)](https://david-dm.org/ianwremmel/proj?type=dev)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
