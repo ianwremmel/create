@@ -52,7 +52,7 @@ async function setupPackageJson(argv, facts) {
   debug('installing common dev dependencies');
   await npmInstallDev([
     '@commitlint/cli',
-    '@commitlint/config-angular',
+    '@commitlint/config-conventional',
     '@ianwremmel/eslint-config-standard',
     'chai',
     'dependency-check',
