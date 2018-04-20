@@ -3,8 +3,9 @@
 // TODO move all meaninful code to lib
 // TODO make javascript a subcommand
 
-const GitHubAPI = require('github');
+const GitHubAPI = require('@octokit/rest');
 const {exec} = require('mz/child_process');
+const netrc = require('netrc');
 
 const {CircleCI, followWithCircle} = require('../lib/circleci');
 const {d: debug} = require('../lib/debug')(__filename);
@@ -29,7 +30,12 @@ if (process.env.GH_TOKEN) {
   });
 }
 else {
-  github.authenticate({type: 'netrc'});
+  const auth = netrc()['api.github.com'];
+  github.authenticate({
+    password: auth.password,
+    type: 'basic',
+    username: auth.login
+  });
 }
 
 const cci = new CircleCI();
@@ -62,7 +68,7 @@ exports.builder = function builder(yargs) {
       localOnly: {
         // Reminder: as part of an implication, we can't default this to `false`
         // and instead need to rely on implicitly casting `undefined`.
-        description: 'Setup local files but do apply remote changes. Note: Network requests will still be made to gather facts.',
+        description: 'Setup local files but do not apply remote changes. Note: Network requests will still be made to gather facts.',
         type: 'boolean'
       },
       owner: {
