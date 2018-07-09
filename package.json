@@ -57,7 +57,7 @@
     "condition-circle": "^2.0.0",
     "coveralls": "^3.0.0",
     "dependency-check": "^3.0.0",
-    "eslint": "^4.11.0",
+    "eslint": "^5.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-mocha": "^5.0.0",
     "husky": "^0.14.3",
