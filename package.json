@@ -67,8 +67,8 @@
     "semantic-release": "^15.0.2"
   },
   "lint-staged": {
-    "*.js": "lint:eslint",
-    "bin/**": "lint:eslint"
+    "*.js": "npm run lint:eslint",
+    "bin/**": "npm run lint:eslint"
   },
   "release": {
     "verifyConditions": "condition-circle"
