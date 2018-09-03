@@ -45,25 +45,25 @@
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "supports-color": "^5.0.1",
-    "yargs": "^11.0.0"
+    "yargs": "^12.0.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^6.0.2",
     "@commitlint/config-angular": "^6.0.2",
+    "@commitlint/cli": "^7.1.1",
     "@ianwremmel/eslint-config-base": "^1.0.0",
     "@ianwremmel/eslint-config-standard": "^1.2.0",
-    "babel-eslint": "^8.0.2",
+    "babel-eslint": "^9.0.0",
     "chai": "^4.1.2",
     "condition-circle": "^2.0.0",
     "coveralls": "^3.0.0",
     "dependency-check": "^3.0.0",
-    "eslint": "^4.11.0",
+    "eslint": "^5.5.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-mocha": "^5.0.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.0",
     "mocha": "^5.0.0",
-    "nyc": "^11.2.1",
+    "nyc": "^13.0.1",
     "semantic-release": "^15.0.2"
   },
   "lint-staged": {
