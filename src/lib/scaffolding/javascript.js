@@ -53,7 +53,6 @@ async function setupPackageJson(argv, facts) {
     '@commitlint/config-conventional',
     '@ianwremmel/eslint-config-standard',
     'chai',
-    'dependency-check',
     'eslint',
     'husky',
     'lint-staged',
@@ -132,24 +131,7 @@ async function setupPackageJson(argv, facts) {
           console.warn('Could not set script "lint:deps"');
           console.warn(err);
         }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'lint:deps:missing',
-            to: 'dependency-check package.json'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint:deps:missing"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'lint:deps:unused',
-            to: 'dependency-check package.json --unused --no-dev'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint:deps:unused"');
-          console.warn(err);
-        }
+
         try {
           shift.api.setOrReplaceScript(pkg, {
             name: 'lint:staged',
