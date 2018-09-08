@@ -1,10 +1,8 @@
 {
-  "name": "@ianwremmel/proj",
+  "name": "@ianwremmel/create",
   "version": "0.0.0-development",
   "description": "",
-  "bin": {
-    "proj": "./bin/proj"
-  },
+  "bin": "./bin/create",
   "repository": {
     "type": "git",
     "url": "https://github.com/ianwremmel/proj.git"
@@ -66,8 +64,7 @@
     "semantic-release": "^15.0.2"
   },
   "lint-staged": {
-    "*.js": "npm run eslint",
-    "bin/**": "npm run eslint"
+    "*.js": "npm run eslint"
   },
   "release": {
     "verifyConditions": "condition-circle"

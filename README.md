@@ -13,19 +13,46 @@
 
 > Rig up projects on GitHub/CircleCI
 
-I got tired of going through the same set of steps to create a repo, tweak package.json, connect circle ci, and whatnot, so, this automates that process according to my preferences.
+I got tired of going through the same set of steps to create a repo, tweak
+package.json, connect circle ci, and whatnot, so, this automates that process
+according to my preferences.
 
 ## Install
 
-```js
-npm install -g @ianwremmel/proj
+> Since this project is intentded for use with `npm init`, there's generally no
+> need to install it.
+
+```bash
+npm install -g @ianwremmel/create
 ```
 
 ## Usage
 
 ```bash
-proj --help
+npm init @ianwremmel
 ```
+
+Without options, the default behavior is:
+
+-   create a github repository
+-   initialize local repository
+-   create root commit
+-   connect local repo to github repo
+-   follow project on circle ci and configure project settings
+-   create common project files
+    -   .editorconfig
+    -   .circleci/config.yml
+    -   README.md
+    -   LICENSE
+    -   package.json
+    -   .gitignore
+    -   .eslintrc.yml
+    -   commitlint.config.js
+    -   .npmrc
+    -   .markdownlint
+-   push local commits to github
+-   setup branch protection
+-   install dev dependendencies
 
 ## Maintainers
 
