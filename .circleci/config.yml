@@ -53,7 +53,7 @@ workflows:
       # prevents tests from running
       - lint
       - release:
-          context: org-global
+          context: semantic-release
           filters:
             branches:
               only: master
