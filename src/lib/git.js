@@ -54,8 +54,7 @@ async function getOrCreateRemoteRepo(github, details) {
     const {data: githubRepo} = await github.repos.create(details);
     debug('Done');
     return githubRepo;
-  }
-  catch (err) {
+  } catch (err) {
     // 422 probably implies we've already got a repo by that name, so, assume
     // this is the same repo.
     if (err.code !== 422) {
@@ -82,8 +81,7 @@ async function initializeLocalRepo(githubRepoObject) {
     debug('Checking if this project has a git repo');
     await exec('git status');
     debug('Git has already been initialized for this project');
-  }
-  catch (err) {
+  } catch (err) {
     debug(f`Initializing git repo in ${process.cwd()}`);
     await exec('git init');
     debug(f`Initialized git repo in ${process.cwd()}`);
@@ -93,8 +91,7 @@ async function initializeLocalRepo(githubRepoObject) {
     debug('Checking if the local repo has any commits');
     await exec('git log');
     debug('There are already commits, not adding root commit');
-  }
-  catch (err) {
+  } catch (err) {
     debug('Adding root commit');
     await exec(`git commit --allow-empty -m "${rootCommitMessage}"`);
     debug('Added root commit');
@@ -105,8 +102,7 @@ async function initializeLocalRepo(githubRepoObject) {
     try {
       await exec(`git remote add origin ${githubRepoObject.ssh_url}`);
       debug('Added origin remote');
-    }
-    catch (err) {
+    } catch (err) {
       if (!err.message.includes('remote origin already exists.')) {
         debug('Could not add origin remote.');
         debug(err);
@@ -126,4 +122,3 @@ async function initializeLocalRepo(githubRepoObject) {
 async function pushAndTrackBranch({branch = 'master', remote = 'origin'} = {}) {
   await exec(`git push -u ${remote} ${branch}:${branch}`);
 }
-

@@ -10,19 +10,14 @@
     "url": "https://github.com/ianwremmel/proj.git"
   },
   "scripts": {
-    "commitmsg": "npm run --silent lint:commitmsg",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "lint": "npm run --silent lint:js && npm run --silent lint:changelog && npm run --silent lint:deps",
+    "commitmsg": "commitlint -e",
+    "eslint": "eslint --ignore --ignore-path .gitignore --fix",
+    "lint": "npm-run-all lint:*",
     "lint:changelog": "commitlint --from origin/master --to HEAD",
-    "lint:commitmsg": "commitlint -e",
-    "lint:eslint": "eslint --ignore --ignore-path .gitignore --fix",
-    "lint:js": "npm run --silent lint:eslint -- .",
-    "lint:deps": "npm run --silent lint:deps:missing && npm run --silent lint:deps:unused",
-    "lint:deps:missing": "echo 'skipping dep check because acorn does not handle spread in Objects' # dependency-check package.json src/commands/*",
-    "lint:deps:unused": "echo 'skipping dep check because acorn does not handle spread in Objects' # dependency-check package.json --unused --no-dev --ignore-module request --ignore-module yargs src/commands/*",
-    "lint:staged": "lint-staged",
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
-    "precommit": "npm run --silent lint:staged",
+    "lint:js": "npm run --silent eslint -- .",
+    "precommit": "lint-staged",
     "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
     "semantic-release": "semantic-release"
   },
@@ -50,25 +45,29 @@
   "devDependencies": {
     "@commitlint/cli": "^7.1.1",
     "@commitlint/config-conventional": "^7.1.1",
-    "@ianwremmel/eslint-config-base": "^1.0.0",
-    "@ianwremmel/eslint-config-standard": "^1.2.0",
-    "babel-eslint": "^9.0.0",
+    "@ianwremmel/eslint-plugin-ianwremmel": "^1.0.0",
     "chai": "^4.1.2",
     "condition-circle": "^2.0.0",
     "coveralls": "^3.0.0",
-    "dependency-check": "^3.0.0",
     "eslint": "^5.5.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-mocha": "^5.0.0",
+    "eslint-config-prettier": "^3.0.1",
+    "eslint-plugin-comments": "^1.0.0",
+    "eslint-plugin-compat": "^2.5.1",
+    "eslint-plugin-eslint-comments": "^3.0.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-prettier": "^2.6.2",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.0",
     "mocha": "^5.0.0",
+    "npm-run-all": "^4.1.3",
     "nyc": "^13.0.1",
+    "prettier": "^1.14.2",
     "semantic-release": "^15.0.2"
   },
   "lint-staged": {
-    "*.js": "npm run --silent lint:eslint",
-    "bin/**": "npm run --silent lint:eslint"
+    "*.js": "npm run eslint",
+    "bin/**": "npm run eslint"
   },
   "release": {
     "verifyConditions": "condition-circle"

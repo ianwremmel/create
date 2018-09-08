@@ -1,8 +1,6 @@
 restore_cache: &restore_cache
   keys:
-    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ checksum "package.json" }}
     - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package.json" }}
-    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
 
 save_cache: &save_cache
   key: node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ checksum "package.json" }}

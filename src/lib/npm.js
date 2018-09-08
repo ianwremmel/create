@@ -23,9 +23,7 @@ exports.npmInstallDev = npmInstallDev;
  */
 async function npmInstallPeersOf(packageName) {
   debug(f`installing peers of ${packageName}`);
-  const [
-    out
-  ] = await exec(`npm info --json ${packageName}`);
+  const [out] = await exec(`npm info --json ${packageName}`);
   const info = JSON.parse(out);
   await npmInstallDev(Object.keys(info.peerDependencies));
 }

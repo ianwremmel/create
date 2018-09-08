@@ -1,8 +1,5 @@
 'use strict';
 
-/* eslint-disable class-methods-use-this */
-
-
 const invariant = require('invariant');
 const request = require('request-promise-native');
 
@@ -32,10 +29,13 @@ class CircleCI {
    * @returns {Promise<Object>} -
    */
   _request(options) {
-    const payload = Object.assign({
-      json: true,
-      qs: {'circle-token': netrc.host('circleci.com').login}
-    }, options);
+    const payload = Object.assign(
+      {
+        json: true,
+        qs: {'circle-token': netrc.host('circleci.com').login}
+      },
+      options
+    );
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
     return request(payload);
   }
@@ -127,9 +127,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  getBuild({
-    buildNumber, project, username
-  }) {
+  getBuild({buildNumber, project, username}) {
     return this._request({
       method: 'GET',
       uri: `/project/github/${username}/${project}/${buildNumber}`
@@ -144,9 +142,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  getArtifacts({
-    buildNumber, project, username
-  }) {
+  getArtifacts({buildNumber, project, username}) {
     return this._request({
       method: 'GET',
       uri: `/project/github/${username}/${project}/${buildNumber}/artifacts`
@@ -161,9 +157,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  retryBuild({
-    buildNumber, project, username
-  }) {
+  retryBuild({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/retry`
@@ -178,9 +172,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  cancelBuild({
-    buildNumber, project, username
-  }) {
+  cancelBuild({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/cancel`
@@ -195,9 +187,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  addUser({
-    buildNumber, project, username
-  }) {
+  addUser({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
       uri: `/project/github/${username}/${project}/${buildNumber}/ssh-users`
@@ -213,9 +203,7 @@ class CircleCI {
    * @param {string} options.buildNumber -
    * @returns {Promise} -
    */
-  build({
-    branch, project, username
-  }) {
+  build({branch, project, username}) {
     return this._request({
       method: 'POST',
       uri: `/project/github/${username}/${project}/tree/${branch}`
@@ -273,9 +261,7 @@ class CircleCI {
    * @param {string} options.fingerprint -
    * @returns {Promise} -
    */
-  getCheckoutKey({
-    fingerprint, project, username
-  }) {
+  getCheckoutKey({fingerprint, project, username}) {
     return this._request({
       method: 'GET',
       uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
@@ -290,9 +276,7 @@ class CircleCI {
    * @param {string} options.fingerprint -
    * @returns {Promise} -
    */
-  deleteCheckoutKey({
-    fingerprint, project, username
-  }) {
+  deleteCheckoutKey({fingerprint, project, username}) {
     return this._request({
       method: 'DELETE',
       uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
@@ -334,9 +318,7 @@ class CircleCI {
    * @param {Object} options.settings -
    * @returns {Promise} -
    */
-  configure({
-    project, username, settings
-  }) {
+  configure({project, username, settings}) {
     return this._request({
       body: settings,
       json: true,
@@ -360,13 +342,18 @@ async function followWithCircle(cci, details) {
   invariant(details.username, 'details.username is required');
   invariant(details.project, 'details.project is required');
 
-  debug(f`Following project ${details.username}/${details.project}on Circle CI`);
+  debug(
+    f`Following project ${details.username}/${details.project}on Circle CI`
+  );
   await cci.follow(details);
   debug('Done');
 
-  debug('Enable autocancel builds, build fork PRs, and disabling secrets on fork PRs');
+  debug(
+    'Enable autocancel builds, build fork PRs, and disabling secrets on fork PRs'
+  );
   await cci.configure({
     settings: {
+      // eslint-disable-next-line camelcase
       feature_flags: {
         'autocancel-builds': true,
         'build-fork-prs': true,

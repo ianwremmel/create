@@ -7,7 +7,8 @@ exports.builder = function builder(yargs) {
   return yargs
     .demand('template')
     .positional('template', {
-      description: 'Name of the template to apply. Template extension should be omitted',
+      description:
+        'Name of the template to apply. Template extension should be omitted',
       type: 'string'
     })
     .options({
@@ -27,8 +28,10 @@ exports.desc = 'Apply a single template in the current directory';
 exports.handler = async function handler(argv) {
   const {force, template: tpl} = argv;
 
-  if (await exists(tpl) && !force) {
-    throw new Error('Template result file already exists. Please specify --force to overwrite');
+  if ((await exists(tpl)) && !force) {
+    throw new Error(
+      'Template result file already exists. Please specify --force to overwrite'
+    );
   }
 
   await template(tpl, argv);

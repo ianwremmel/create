@@ -9,8 +9,7 @@ exports.exists = async function exists(filename) {
   try {
     await fs.access(fullPath, fs.constants.F_OK);
     return true;
-  }
-  catch (err) {
+  } catch (err) {
     return false;
   }
 };

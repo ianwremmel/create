@@ -28,8 +28,7 @@ if (process.env.GH_TOKEN) {
     token: process.env.GH_TOKEN,
     type: 'oauth'
   });
-}
-else {
+} else {
   const auth = netrc()['api.github.com'];
   github.authenticate({
     password: auth.password,
@@ -57,22 +56,26 @@ exports.builder = function builder(yargs) {
       },
       engine: {
         default: 6,
-        description: 'Minimum node version required for this project. Ignored if not a JavaScript project',
+        description:
+          'Minimum node version required for this project. Ignored if not a JavaScript project',
         type: 'number'
       },
       license: {
         default: 'UNLICENSED',
-        description: 'Specify a SPDX license type. If MIT, the MIT license file will be included, otherwise you will need to add your own license file later',
+        description:
+          'Specify a SPDX license type. If MIT, the MIT license file will be included, otherwise you will need to add your own license file later',
         type: 'string'
       },
       localOnly: {
         // Reminder: as part of an implication, we can't default this to `false`
         // and instead need to rely on implicitly casting `undefined`.
-        description: 'Setup local files but do not apply remote changes. Note: Network requests will still be made to gather facts.',
+        description:
+          'Setup local files but do not apply remote changes. Note: Network requests will still be made to gather facts.',
         type: 'boolean'
       },
       owner: {
-        description: 'GitHub org or username to which this project will belong. Defaults to the current GitHub user if not specified.',
+        description:
+          'GitHub org or username to which this project will belong. Defaults to the current GitHub user if not specified.',
         type: 'string'
       },
       private: {
@@ -81,11 +84,13 @@ exports.builder = function builder(yargs) {
         type: 'boolean'
       },
       repoName: {
-        description: 'GitHub repository name. Defaults to the current directory if not specified',
+        description:
+          'GitHub repository name. Defaults to the current directory if not specified',
         type: 'string'
       },
       shortDescription: {
-        description: 'Used in the README, at the top of the GitHub page, in package.json',
+        description:
+          'Used in the README, at the top of the GitHub page, in package.json',
         type: 'string'
       }
     });
@@ -93,7 +98,8 @@ exports.builder = function builder(yargs) {
 
 exports.command = 'init';
 
-exports.desc = 'Configure a project to be stored on GitHub and tracked by CircleCI';
+exports.desc =
+  'Configure a project to be stored on GitHub and tracked by CircleCI';
 
 /* eslint-disable max-statements */
 /* eslint-disable complexity */
@@ -102,7 +108,10 @@ exports.handler = async function handler(argv) {
   const facts = await gatherFacts({github}, argv);
 
   console.log('Creating GitHub repository');
-  facts.githubRepoObject = await getOrCreateRemoteRepo(github, extractCreateRepoFacts(facts));
+  facts.githubRepoObject = await getOrCreateRemoteRepo(
+    github,
+    extractCreateRepoFacts(facts)
+  );
 
   console.log('Initializing local repository...');
   await initializeLocalRepo(facts.githubRepoObject);
@@ -138,6 +147,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.localOnly) {
     console.log('Enforcing branch protection');
+    /* eslint-disable camelcase */
     await github.repos.updateBranchProtection({
       branch: 'master',
       enforce_admins: true,
@@ -155,12 +165,14 @@ exports.handler = async function handler(argv) {
       },
       restrictions: null
     });
+    /* eslint-enable camelcase */
   }
 
   if (argv.localOnly) {
-    console.log('Your project has been configured locally, but since you specified localOnly, some actions setup could not be completed');
-  }
-  else {
+    console.log(
+      'Your project has been configured locally, but since you specified localOnly, some actions setup could not be completed'
+    );
+  } else {
     console.log();
     console.log('Your project can be viewed at the following urls');
     if (facts.githubRepoObject) {
@@ -175,3 +187,6 @@ exports.handler = async function handler(argv) {
     console.log();
   }
 };
+
+/* eslint-enable max-statements */
+/* eslint-enable complexity */

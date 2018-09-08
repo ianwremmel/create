@@ -29,9 +29,7 @@ function d(filename) {
 
   const projectPath = filename.replace(rootPath, '');
 
-  const name = pkg.name
-    .split('/')
-    .pop();
+  const name = pkg.name.split('/').pop();
 
   const prefix = `${name}${projectPath
     .replace(/^cjs/, '')
@@ -53,7 +51,6 @@ function d(filename) {
  * @returns {string}
  */
 function f(tpl, ...params) {
-
   let res = '';
   for (let i = 0; i < tpl.length; i++) {
     res += tpl[i];
@@ -69,10 +66,10 @@ function f(tpl, ...params) {
 exports.f = f;
 
 /**
-   * Colorizes variables for template string
-   * @param {mixed} value
-   * @returns {string}
-   */
+ * Colorizes variables for template string
+ * @param {mixed} value
+ * @returns {string}
+ */
 function v(value) {
   if (!supportsColor.stdout) {
     return `"${value}"`;
