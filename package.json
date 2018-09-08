@@ -10,16 +10,14 @@
     "url": "https://github.com/ianwremmel/proj.git"
   },
   "scripts": {
-    "commitmsg": "npm run --silent lint:commitmsg",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "lint": "npm run --silent lint:js && npm run --silent lint:changelog && npm run --silent lint:deps",
+    "commitmsg": "commitlint -e",
     "lint:changelog": "commitlint --from origin/master --to HEAD",
-    "lint:commitmsg": "commitlint -e",
     "lint:eslint": "eslint --ignore --ignore-path .gitignore --fix",
     "lint:js": "npm run --silent lint:eslint -- .",
-    "lint:staged": "lint-staged",
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
-    "precommit": "npm run --silent lint:staged",
+    "precommit": "lint-staged",
     "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
     "semantic-release": "semantic-release"
   },
