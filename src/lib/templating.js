@@ -3,9 +3,7 @@
 const path = require('path');
 
 const _ = require('lodash');
-const {
-  copyFile, readFile, writeFile
-} = require('mz/fs');
+const {copyFile, readFile, writeFile} = require('mz/fs');
 const mkdirp = require('mkdirp');
 
 const {d: debug, f} = require('./debug')(__filename);
@@ -21,12 +19,17 @@ exports.template = async function template(filename, context) {
   let tpl;
   try {
     debug(f`Checking for ${filename} with ejs extension`);
-    tpl = await readFile(path.resolve(__dirname, '..', 'templates', `${filename}.ejs`), 'utf8');
+    tpl = await readFile(
+      path.resolve(__dirname, '..', 'templates', `${filename}.ejs`),
+      'utf8'
+    );
     debug(f`Found ${filename} with ejs extension`);
-  }
-  catch (err) {
+  } catch (err) {
     debug(f`Checking for ${filename} without ejs extension`);
-    tpl = await readFile(path.resolve(__dirname, '..', 'templates', filename), 'utf8');
+    tpl = await readFile(
+      path.resolve(__dirname, '..', 'templates', filename),
+      'utf8'
+    );
     debug(f`Found for ${filename} with ejs extension`);
   }
   const out = _.template(tpl)(context);
@@ -61,4 +64,3 @@ exports.copy = async function copy(filename) {
   await copyFile(src, dest);
   debug('Done');
 };
-

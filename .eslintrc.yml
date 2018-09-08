@@ -2,11 +2,12 @@ env:
   es6: true
   node: true
 extends:
-  - "@ianwremmel/eslint-config-standard"
+    - "plugin:@ianwremmel/ianwremmel/standard"
+    - "plugin:@ianwremmel/ianwremmel/node"
 parserOptions:
   sourceType: "script"
-parser: babel-eslint
 rules:
+  no-console: off
   no-warning-comments: warn
   quotes:
     - error

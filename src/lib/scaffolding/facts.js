@@ -37,7 +37,12 @@ function extractLicenseFacts({githubUserObject}) {
 exports.extractLicenseFacts = extractLicenseFacts;
 
 function extractPackageJSONFacts({
-  githubPublicEmail, githubUserObject, githubRepoObject, packageName, repoName, shortDescription
+  githubPublicEmail,
+  githubUserObject,
+  githubRepoObject,
+  packageName,
+  repoName,
+  shortDescription
 }) {
   return {
     authorEmail: githubPublicEmail,
@@ -50,6 +55,7 @@ function extractPackageJSONFacts({
 }
 exports.extractPackageJSONFacts = extractPackageJSONFacts;
 
+/* eslint-enable require-jsdoc */
 
 /**
  * Extracts facts for the readme template
@@ -57,7 +63,13 @@ exports.extractPackageJSONFacts = extractPackageJSONFacts;
  * @returns {GithubReadmeFacts}
  */
 function extractReadmeFacts({
-  coverage, githubRepoObject, githubUserObject, javascript, license, packageName, shortDescription
+  coverage,
+  githubRepoObject,
+  githubUserObject,
+  javascript,
+  license,
+  packageName,
+  shortDescription
 }) {
   return {
     coverage,
@@ -73,8 +85,6 @@ function extractReadmeFacts({
 
 exports.extractReadmeFacts = extractReadmeFacts;
 
-/* eslint-disable require-jsdoc */
-
 /**
  * Gathers facts that'll be used through out the init script
  * @param {Object} clients
@@ -83,14 +93,19 @@ exports.extractReadmeFacts = extractReadmeFacts;
  * @returns {Facts}
  */
 async function gatherFacts({github}, argv) {
-  const repoName = argv.repoName || process.cwd()
-    .split('/')
-    .pop();
+  const repoName =
+    argv.repoName ||
+    process
+      .cwd()
+      .split('/')
+      .pop();
 
   const {data: githubUserObject} = await github.users.get({});
   const {data: githubPublicEmails} = await github.users.getPublicEmails({});
 
-  const githubPublicEmail = (githubPublicEmails.find(({primary}) => primary) || githubPublicEmails[0]).email;
+  const githubPublicEmail = (
+    githubPublicEmails.find(({primary}) => primary) || githubPublicEmails[0]
+  ).email;
   const facts = {
     ...argv,
     githubPublicEmail,

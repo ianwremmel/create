@@ -15,38 +15,31 @@ const {extractLicenseFacts, extractReadmeFacts} = require('./facts');
  * @param {Facts} facts
  */
 async function applyCommonScaffolding(options, facts) {
-  if (options.editorconfig && !await exists('.editorconfig')) {
+  if (options.editorconfig && !(await exists('.editorconfig'))) {
     debug('creating .editorconfig');
     await template('.editorconfig', {});
 
     debug('committing .editorconfig');
-    await addAndCommit([
-      '.editorconfig'
-    ], 'build(tooling): add .editorconfig');
+    await addAndCommit(['.editorconfig'], 'build(tooling): add .editorconfig');
   }
 
-  if (options.readme && !await exists('README.md')) {
+  if (options.readme && !(await exists('README.md'))) {
     debug('creating README.md');
 
     template('README.md', extractReadmeFacts(facts));
 
-    if (facts.license === 'MIT' && !await exists('LICENSE')) {
+    if (facts.license === 'MIT' && !(await exists('LICENSE'))) {
       debug('creating LICENSE');
 
       await template('LICENSE', extractLicenseFacts(facts));
 
       debug('committing LICENSE');
-      await addAndCommit([
-        'LICENSE'
-      ], 'docs(readme): add LICENSE');
+      await addAndCommit(['LICENSE'], 'docs(readme): add LICENSE');
     }
 
     debug('committing README.md');
-    await addAndCommit([
-      'README.md'
-    ], 'docs(readme): add README');
+    await addAndCommit(['README.md'], 'docs(readme): add README');
   }
 }
-
 
 module.exports = applyCommonScaffolding;

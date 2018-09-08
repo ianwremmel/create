@@ -27,10 +27,11 @@ exports.check = async function check(machine, testurl) {
     };
     await request(opts);
     debug(f`verified creds for ${machine}`);
-  }
-  catch (err) {
+  } catch (err) {
     debug(err.message);
-    debug(f`request to ${machine} failed; please re-invoke with the corresponding command line switches`);
+    debug(
+      f`request to ${machine} failed; please re-invoke with the corresponding command line switches`
+    );
   }
 };
 
