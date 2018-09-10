@@ -61,6 +61,7 @@ exports.copy = async function copy(filename) {
   debug('Done');
 
   debug(f`Copying ${src} to ${dest}`);
+  // @ts-ignore - typescript is picking up the wrong variant
   await copyFile(src, dest);
   debug('Done');
 };

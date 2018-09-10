@@ -20,7 +20,6 @@
 
 <%= [
   `[![CircleCI](https://circleci.com/gh/${githubUserName}/${githubRepoName}.svg?style=svg)](https://circleci.com/gh/${githubUserName}/${githubRepoName})`,
-  coverage && `[![Coverage Status](https://coveralls.io/repos/github/${githubUserName}/${githubRepoName}/badge.svg?branch=master)](https://coveralls.io/github/${githubUserName}/${githubRepoName}?branch=master)`
   ].filter(Boolean).join('\n')
 %>
 <!-- PROJ: Badges End -->

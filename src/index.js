@@ -7,6 +7,10 @@
  */
 const {exec} = require('mz/child_process');
 
+const {d: debug} = require('./lib/debug')(__filename);
+const {exists} = require('./lib/file');
+const {addAndCommit} = require('./lib/git');
+const {template} = require('./lib/templating');
 const {CircleCI, followWithCircle} = require('./lib/circleci');
 const github = require('./lib/github');
 const {
@@ -14,6 +18,8 @@ const {
   initializeLocalRepo,
   pushAndTrackBranch
 } = require('./lib/git');
+
+/* eslint-disable complexity */
 
 /**
  * @param {CreateArgs} argv
@@ -53,6 +59,45 @@ async function create(argv) {
       username: githubUserObject.login
     });
     console.log('Done');
+
+    if (!(await exists('.editorconfig'))) {
+      debug('creating .editorconfig');
+      await template('.editorconfig', {});
+
+      debug('committing .editorconfig');
+      await addAndCommit(
+        ['.editorconfig'],
+        'build(tooling): add .editorconfig'
+      );
+    }
+
+    if (!(await exists('README.md'))) {
+      debug('creating README.md');
+
+      template('README.md', {
+        githubDisplayName: githubUserObject.name,
+        githubRepoName: repoName,
+        githubUserName: githubUserObject.login,
+        javascript: true,
+        license: 'MIT',
+        packageName: githubUserObject.login + '/' + repoName,
+        shortDescription: ''
+      });
+
+      if (!(await exists('LICENSE'))) {
+        debug('creating LICENSE');
+
+        await template('LICENSE', {
+          licenseHolderDisplayName: githubUserObject.name
+        });
+
+        debug('committing LICENSE');
+        await addAndCommit(['LICENSE'], 'docs(readme): add LICENSE');
+      }
+
+      debug('committing README.md');
+      await addAndCommit(['README.md'], 'docs(readme): add README');
+    }
 
     if (!argv.localOnly) {
       console.log('Pushing all changes to GitHub');
@@ -108,3 +153,5 @@ async function create(argv) {
   }
 }
 module.exports = create;
+
+/* eslint-enable complexity */
