@@ -3,6 +3,7 @@
   "version": "0.0.0-development",
   "description": "",
   "bin": "./bin/create",
+  "main": "./src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ianwremmel/proj.git"
@@ -65,9 +66,7 @@
     "eslint-plugin-prettier": "^2.6.2",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.0",
-    "mocha": "^5.0.0",
     "npm-run-all": "^4.1.3",
-    "nyc": "^13.0.1",
     "prettier": "^1.14.2",
     "semantic-release": "^15.0.2",
     "typescript": "^3.0.3"

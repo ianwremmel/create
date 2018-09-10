@@ -37,7 +37,7 @@ class CircleCI {
       options
     );
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
-    return request(payload);
+    return Promise.resolve(request(payload));
   }
 
   /**
@@ -198,6 +198,7 @@ class CircleCI {
    * iggers a new build, returns a summary of the build. Optional build
    * parameters can be set as well.
    * @param {Object} options -
+   * @param {string} options.branch -
    * @param {string} options.project -
    * @param {string} options.username -
    * @param {string} options.buildNumber -
@@ -343,7 +344,7 @@ async function followWithCircle(cci, details) {
   invariant(details.project, 'details.project is required');
 
   debug(
-    f`Following project ${details.username}/${details.project}on Circle CI`
+    f`Following project ${details.username}/${details.project} on Circle CI`
   );
   await cci.follow(details);
   debug('Done');

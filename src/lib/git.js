@@ -1,6 +1,8 @@
 'use strict';
 
 const {exec} = require('mz/child_process');
+// eslint-disable-next-line no-unused-vars
+const GitHubAPI = require('@octokit/rest');
 
 const {d: debug, f} = require('./debug')(__filename);
 
@@ -42,11 +44,11 @@ async function addAndCommit(files, msg) {
 
 /**
  * Creates a remote repository on GitHub
- * @param {Object} github
+ * @param {GitHubAPI} github
  * @param {Object} details
- * @param {string} owner - github org or username
- * @param {string} name - github repo name
- * @returns {Object} - The GitHub API repo object
+ * @param {string} details.owner - github org or username
+ * @param {string} details.name - github repo name
+ * @returns {Promise<GitHubAPI.GetResponse|GitHubAPI.CreateResponse>} - The GitHub API repo object
  */
 async function getOrCreateRemoteRepo(github, details) {
   try {
@@ -116,8 +118,8 @@ async function initializeLocalRepo(githubRepoObject) {
 /**
  * Pushes the local branch to the remote and sets up branch tracking
  * @param {Object} [options]
- * @param {string} [branch=master]
- * @param {string} [remote=origin]
+ * @param {string} [options.branch=master]
+ * @param {string} [options.remote=origin]
  */
 async function pushAndTrackBranch({branch = 'master', remote = 'origin'} = {}) {
   await exec(`git push -u ${remote} ${branch}:${branch}`);
