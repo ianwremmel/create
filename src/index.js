@@ -4,9 +4,11 @@
  * @typedef {Object} CreateArgs
  * @property {boolean} localOnly
  * @property {boolean} circle
+ * @property {boolean} public
  */
 const {exec} = require('mz/child_process');
 
+const {scaffold} = require('./scaffold');
 const {d: debug} = require('./lib/debug')(__filename);
 const {exists} = require('./lib/file');
 const {addAndCommit} = require('./lib/git');
@@ -37,11 +39,13 @@ async function create(argv) {
     }
 
     const {data: githubUserObject} = await github.users.get({});
+    const packageName = `@${githubUserObject.login}/${repoName}`;
 
     console.log('Creating GitHub repository');
     const remoteRepo = await getOrCreateRemoteRepo(github, {
       name: repoName,
-      owner: githubUserObject.login
+      owner: githubUserObject.login,
+      private: !argv.public
     });
     console.log('Done');
 
@@ -71,33 +75,15 @@ async function create(argv) {
       );
     }
 
-    if (!(await exists('README.md'))) {
-      debug('creating README.md');
-
-      template('README.md', {
-        githubDisplayName: githubUserObject.name,
-        githubRepoName: repoName,
-        githubUserName: githubUserObject.login,
-        javascript: true,
-        license: 'MIT',
-        packageName: githubUserObject.login + '/' + repoName,
-        shortDescription: ''
-      });
-
-      if (!(await exists('LICENSE'))) {
-        debug('creating LICENSE');
-
-        await template('LICENSE', {
-          licenseHolderDisplayName: githubUserObject.name
-        });
-
-        debug('committing LICENSE');
-        await addAndCommit(['LICENSE'], 'docs(readme): add LICENSE');
-      }
-
-      debug('committing README.md');
-      await addAndCommit(['README.md'], 'docs(readme): add README');
-    }
+    await scaffold(
+      {
+        githubUserObject,
+        packageName,
+        remoteRepo,
+        repoName
+      },
+      github
+    );
 
     if (!argv.localOnly) {
       console.log('Pushing all changes to GitHub');

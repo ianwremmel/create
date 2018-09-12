@@ -48,6 +48,7 @@ async function addAndCommit(files, msg) {
  * @param {Object} details
  * @param {string} details.owner - github org or username
  * @param {string} details.name - github repo name
+ * @param {boolean} details.private
  * @returns {Promise<GitHubAPI.GetResponse|GitHubAPI.CreateResponse>} - The GitHub API repo object
  */
 async function getOrCreateRemoteRepo(github, details) {

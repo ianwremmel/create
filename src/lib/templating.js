@@ -13,7 +13,7 @@ const {d: debug, f} = require('./debug')(__filename);
  * @param {string} filename - template filename
  * @param {Object} context - argv
  */
-exports.template = async function template(filename, context) {
+exports.template = async function template(filename, context = {}) {
   debug(f`Templating ${filename} into project`);
 
   let tpl;
