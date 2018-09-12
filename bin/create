@@ -9,9 +9,19 @@ const E_UNHANDLED_REJECTION = 64;
 // eslint-disable-next-line no-unused-expressions
 const { argv } = require('yargs')
   .options({
-    debug: {
+    circle: {
       default: false,
-      description: 'Print stacktraces',
+      describe: 'Should this project be configured for circle ci?',
+      type: 'boolean'
+    },
+    localOnly: {
+      default: false,
+      describe: 'Do not configure GitHub, Circle, etc; just scaffold the project',
+      type: 'boolean'
+    },
+    public: {
+      default: false,
+      describe: 'Make the project public on GitHub',
       type: 'boolean'
     }
   })
