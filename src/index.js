@@ -20,6 +20,7 @@ const {
   initializeLocalRepo,
   pushAndTrackBranch
 } = require('./lib/git');
+const {follow} = require('./lib/dependabot');
 
 /* eslint-disable complexity */
 
@@ -111,6 +112,18 @@ async function create(argv) {
         restrictions: null
       });
       /* eslint-enable camelcase */
+    }
+
+    if (!argv.localOnly) {
+      console.log('Following project with dependabot');
+      await follow(
+        {
+          githubRepoObject: remoteRepo,
+          githubUserObject
+        },
+        github
+      );
+      console.log('Done');
     }
 
     if (argv.localOnly) {
