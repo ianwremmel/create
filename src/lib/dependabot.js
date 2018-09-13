@@ -2,7 +2,7 @@
 
 const request = require('request-promise-native');
 // eslint-disable-next-line no-unused-vars
-const GitHubAPI = require('@octokit/rest');
+const GitHub = require('@octokit/rest');
 
 const {d: debug} = require('./debug')(__filename);
 
@@ -10,8 +10,8 @@ const {d: debug} = require('./debug')(__filename);
  *
  * @param {Object} options
  * @param {any} options.githubUserObject
- * @param {GitHubAPI.GetResponse|GitHubAPI.CreateResponse} options.githubRepoObject
- * @param {GitHubAPI} github
+ * @param {GitHub.GetResponse|GitHub.CreateResponse} options.githubRepoObject
+ * @param {GitHub} github
  */
 async function follow({githubRepoObject, githubUserObject}, github) {
   debug('Creating temporary github token');

@@ -1,9 +1,9 @@
 'use strict';
 
-const GitHubAPI = require('@octokit/rest');
+const GitHub = require('@octokit/rest');
 const netrc = require('netrc');
 
-const github = new GitHubAPI();
+const github = new GitHub();
 if (process.env.GH_TOKEN) {
   github.authenticate({
     token: process.env.GH_TOKEN,

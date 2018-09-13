@@ -5,7 +5,7 @@ const {exists, readFile, writeFile} = require('mz/fs');
 // @ts-ignore
 const {pkgShift} = require('@ianwremmel/pkgshift');
 // eslint-disable-next-line no-unused-vars
-const GitHubAPI = require('@octokit/rest');
+const GitHub = require('@octokit/rest');
 
 const {d: debug} = require('./lib/debug')(__filename);
 const {template} = require('./lib/templating');
@@ -18,8 +18,8 @@ const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
  * @param {any} options.githubUserObject
  * @param {string} options.packageName
  * @param {string} options.repoName
- * @param {GitHubAPI.GetResponse|GitHubAPI.CreateResponse} options.remoteRepo
- * @param {GitHubAPI} github
+ * @param {GitHub.GetResponse|GitHub.CreateResponse} options.remoteRepo
+ * @param {GitHub} github
  */
 async function scaffold(
   {githubUserObject, remoteRepo, repoName, packageName},

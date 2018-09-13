@@ -2,7 +2,7 @@
 
 const {exec} = require('mz/child_process');
 // eslint-disable-next-line no-unused-vars
-const GitHubAPI = require('@octokit/rest');
+const GitHub = require('@octokit/rest');
 
 const {d: debug, f} = require('./debug')(__filename);
 
@@ -44,12 +44,12 @@ async function addAndCommit(files, msg) {
 
 /**
  * Creates a remote repository on GitHub
- * @param {GitHubAPI} github
+ * @param {GitHub} github
  * @param {Object} details
  * @param {string} details.owner - github org or username
  * @param {string} details.name - github repo name
  * @param {boolean} details.private
- * @returns {Promise<GitHubAPI.GetResponse|GitHubAPI.CreateResponse>} - The GitHub API repo object
+ * @returns {Promise<GitHub.GetResponse|GitHub.CreateResponse>} - The GitHub API repo object
  */
 async function getOrCreateRemoteRepo(github, details) {
   try {
