@@ -2,6 +2,7 @@
 
 const {has, set, wrap} = require('lodash');
 const {exists, readFile, writeFile} = require('mz/fs');
+// @ts-ignore
 const {pkgShift} = require('@ianwremmel/pkgshift');
 // eslint-disable-next-line no-unused-vars
 const GitHubAPI = require('@octokit/rest');
@@ -77,7 +78,7 @@ async function scaffold(
     });
   }
 
-  // eslint-disable-next-line func-style
+  // @ts-ignore
   let tx = (pkg) => {
     debug('checking for engines.node');
     if (!has(pkg, 'engines.node')) {
@@ -102,6 +103,7 @@ async function scaffold(
   await npmInstallPeersOf('@ianwremmel/eslint-plugin-ianwremmel');
 
   tx = wrap(tx, (fn, p, shift) =>
+    // @ts-ignore
     Promise.resolve(fn(p, shift))
       // eslint-disable-next-line complexity
       .then((pkg) => {
@@ -199,6 +201,7 @@ async function scaffold(
   debug('installing semantic release circle ci condition');
   await npmInstallDev(['condition-circle']);
   tx = wrap(tx, (fn, p, shift) =>
+    // @ts-ignore
     Promise.resolve(fn(p, shift)).then((pkg) => {
       debug('checking if package has a verifyCondition');
       if (!has(pkg, 'release.verifyConditions')) {
@@ -210,11 +213,13 @@ async function scaffold(
   );
 
   tx = wrap(tx, (fn, p, shift) =>
+    // @ts-ignore
     Promise.resolve(fn(p, shift)).then((pkg) => {
       debug('Sorting package.json scripts');
       const keys = Object.keys(pkg.scripts).sort();
 
       pkg.scripts = keys.reduce((acc, key) => {
+        // @ts-ignore
         acc[key] = pkg.scripts[key];
         return acc;
       }, {});
