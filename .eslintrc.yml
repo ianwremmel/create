@@ -8,7 +8,7 @@ parserOptions:
   sourceType: "script"
 rules:
   no-console: off
-  no-warning-comments: warn
+  no-warning-comments: error
   quotes:
     - error
     - single
