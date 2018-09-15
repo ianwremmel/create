@@ -2,7 +2,6 @@
 
 const {has, set, wrap} = require('lodash');
 const {exists, readFile, writeFile} = require('mz/fs');
-// @ts-ignore
 const {pkgShift} = require('@ianwremmel/pkgshift');
 // eslint-disable-next-line no-unused-vars
 const GitHub = require('@octokit/rest');
@@ -12,13 +11,57 @@ const {template} = require('./lib/templating');
 const {addAndCommit} = require('./lib/git');
 const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
 
+const scripts = [
+  {
+    name: 'commitmsg',
+    to: 'commitlint -e'
+  },
+  {
+    name: 'lint',
+    to: 'npm-run-all lint:*'
+  },
+  {
+    name: 'lint:changelog',
+    to: 'commitlint --from origin/master --to HEAD'
+  },
+  {
+    name: 'eslint',
+    to: 'eslint --ignore --ignore-path .gitignore'
+  },
+  {
+    name: 'lint:js',
+    to: 'npm run --silent eslint -- .'
+  },
+  {
+    name: 'precommit',
+    to: 'lint-staged'
+  },
+  {
+    name: 'test',
+    to: "echo 'no tests specified'; exit 1"
+  },
+  {
+    name: 'semantic-release',
+    to: 'semantic-release'
+  },
+  {
+    name: 'build',
+    to: 'npm-run-all build:*'
+  },
+  {
+    name: 'build:readme',
+    to:
+      "markdown-toc -i --bullets='-' --maxdepth=3  README.md  && prettier --write README.md"
+  }
+];
+
 /**
  *
  * @param {Object} options
  * @param {any} options.githubUserObject
  * @param {string} options.packageName
  * @param {string} options.repoName
- * @param {GitHub.GetResponse|GitHub.CreateResponse} options.remoteRepo
+ * @param {GitHub.ReposGetResponse|GitHub.ReposCreateResponse} options.remoteRepo
  * @param {GitHub} github
  */
 async function scaffold(
@@ -78,8 +121,15 @@ async function scaffold(
     });
   }
 
-  // @ts-ignore
-  let tx = (pkg) => {
+  /**
+   * @param {Object} pkg
+   * @param {Object} options
+   * @param {Object} options.api
+   * @returns {Object}
+   */
+  // options is provided for tsc inferrence
+  // eslint-disable-next-line no-unused-vars
+  let tx = (pkg, options) => {
     debug('checking for engines.node');
     if (!has(pkg, 'engines.node')) {
       debug('setting for engines.node');
@@ -102,88 +152,20 @@ async function scaffold(
   debug('installing eslint config peer dependencies');
   await npmInstallPeersOf('@ianwremmel/eslint-plugin-ianwremmel');
 
-  tx = wrap(tx, (fn, p, shift) =>
-    // @ts-ignore
-    Promise.resolve(fn(p, shift))
-      // eslint-disable-next-line complexity
-      .then((pkg) => {
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'commitmsg',
-            to: 'commitlint -e'
-          });
-        } catch (err) {
-          console.warn('Could not set script "commitmsg"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'lint',
-            to: 'npm-run-all lint:*'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'lint:changelog',
-            to: 'commitlint --from origin/master --to HEAD'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint:changelog"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'eslint',
-            to: 'eslint --ignore --ignore-path .gitignore'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint:eslint"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'lint:js',
-            to: 'npm run --silent eslint -- .'
-          });
-        } catch (err) {
-          console.warn('Could not set script "lint:js"');
-          console.warn(err);
-        }
+  tx = wrap(tx, async (fn, p, shift) => {
+    const pkg = await fn(p, shift);
 
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'precommit',
-            to: 'lint-staged'
-          });
-        } catch (err) {
-          console.warn('Could not set script "precommit"');
-          console.warn(err);
-        }
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'test',
-            to: "echo 'no tests specified'; exit 1"
-          });
-        } catch (err) {
-          console.warn('Could not set script "test"');
-          console.warn(err);
-        }
+    for (const script of scripts) {
+      try {
+        shift.api.setOrReplaceScript(pkg, script);
+      } catch (err) {
+        console.warn(`Could not set script "${script.name}"`);
+        console.warn(err);
+      }
+    }
 
-        try {
-          shift.api.setOrReplaceScript(pkg, {
-            name: 'semantic-release',
-            to: 'semantic-release'
-          });
-        } catch (err) {
-          console.warn('Could not set script "semantic-release"');
-          console.warn(err);
-        }
-        return pkg;
-      })
-  );
+    return pkg;
+  });
 
   if (!(await exists('.eslintrc.yml'))) {
     await template('.eslintrc.yml');
@@ -201,7 +183,6 @@ async function scaffold(
   debug('installing semantic release circle ci condition');
   await npmInstallDev(['condition-circle']);
   tx = wrap(tx, (fn, p, shift) =>
-    // @ts-ignore
     Promise.resolve(fn(p, shift)).then((pkg) => {
       debug('checking if package has a verifyCondition');
       if (!has(pkg, 'release.verifyConditions')) {
@@ -213,16 +194,17 @@ async function scaffold(
   );
 
   tx = wrap(tx, (fn, p, shift) =>
-    // @ts-ignore
     Promise.resolve(fn(p, shift)).then((pkg) => {
       debug('Sorting package.json scripts');
       const keys = Object.keys(pkg.scripts).sort();
 
+      /** @type {Object} */
+      let result = {};
+
       pkg.scripts = keys.reduce((acc, key) => {
-        // @ts-ignore
         acc[key] = pkg.scripts[key];
         return acc;
-      }, {});
+      }, result);
       return pkg;
     })
   );
