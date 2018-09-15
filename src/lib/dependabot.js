@@ -10,7 +10,7 @@ const {d: debug} = require('./debug')(__filename);
  *
  * @param {Object} options
  * @param {any} options.githubUserObject
- * @param {GitHub.GetResponse|GitHub.CreateResponse} options.githubRepoObject
+ * @param {GitHub.ReposGetResponse|GitHub.ReposCreateResponse} options.githubRepoObject
  * @param {GitHub} github
  */
 async function follow({githubRepoObject, githubUserObject}, github) {
