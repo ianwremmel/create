@@ -55,6 +55,7 @@ const scripts = [
   }
 ];
 
+/* eslint-disable complexity */
 /**
  *
  * @param {Object} options
@@ -94,6 +95,24 @@ async function scaffold(
 
     debug('committing README.md');
     await addAndCommit(['README.md'], 'docs(readme): add README');
+  }
+
+  debug('setting up prettier');
+  const prettierFiles = [];
+  if (!(await exists('.markdownlint.json'))) {
+    await copy('.markdownlint.json');
+    prettierFiles.push('.markdownlint.json');
+  }
+  if (!(await exists('.prettierrc'))) {
+    await copy('.prettierrc');
+    prettierFiles.push('.prettierrc');
+  }
+  if (!(await exists('.prettierignore'))) {
+    await copy('.prettierignore');
+    prettierFiles.push('.prettierignore');
+  }
+  if (prettierFiles.length) {
+    await addAndCommit(prettierFiles, 'style(prettier): setup pretter');
   }
 
   debug('checking if npmrc omits package-lock.json');
@@ -234,6 +253,8 @@ async function scaffold(
     'build(npm): add initial package.json'
   );
 }
+/* eslint-enable complexity */
+
 exports.scaffold = scaffold;
 
 /**
