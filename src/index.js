@@ -3,7 +3,6 @@
 /**
  * @typedef {Object} CreateArgs
  * @property {boolean} localOnly
- * @property {boolean} circle
  * @property {boolean} public
  */
 const {exec} = require('mz/child_process');
@@ -103,10 +102,7 @@ async function create(argv) {
         repo: repoName,
         required_pull_request_reviews: null,
         required_status_checks: {
-          contexts: [
-            // TODO use check names from circle.yml
-            'ci/circleci'
-          ],
+          contexts: ['ci/circleci: lint', 'ci/circleci: test'],
           strict: true
         },
         restrictions: null
@@ -136,8 +132,7 @@ async function create(argv) {
       if (remoteRepo) {
         console.log('GitHub:');
         console.log(`  ${remoteRepo.html_url}`);
-      }
-      if (argv.circle) {
+
         console.log('CircleCI:');
         console.log(
           `  https://circleci.com/gh/${githubUserObject.login}/${repoName}`

@@ -7,7 +7,7 @@ const {pkgShift} = require('@ianwremmel/pkgshift');
 const GitHub = require('@octokit/rest');
 
 const {d: debug} = require('./lib/debug')(__filename);
-const {template} = require('./lib/templating');
+const {copy, template} = require('./lib/templating');
 const {addAndCommit} = require('./lib/git');
 const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
 
@@ -147,6 +147,7 @@ async function scaffold(
     'eslint',
     'husky',
     'lint-staged',
+    'npm-run-all',
     'semantic-release'
   ]);
   debug('installing eslint config peer dependencies');
@@ -192,6 +193,17 @@ async function scaffold(
       return pkg;
     })
   );
+
+  debug('checking of circle config exists');
+  if (!(await exists('.circleci/config.yml'))) {
+    debug('circle config does not exist, creating it');
+    await copy('.circleci/config.yml');
+    await addAndCommit(
+      ['.circleci/config.yml'],
+      'ci(circle): create circle config'
+    );
+  }
+  debug('done');
 
   tx = wrap(tx, (fn, p, shift) =>
     Promise.resolve(fn(p, shift)).then((pkg) => {
