@@ -25,7 +25,7 @@ jobs:
     steps:
       - checkout
       - restore_cache: *restore_cache
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
       - save_cache: *save_cache
 
@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - restore_cache: *restore_cache
-      - run: npm install
+      - run: npm ci
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
