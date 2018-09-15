@@ -39,20 +39,29 @@ Without options, the default behavior is:
 -   create root commit
 -   connect local repo to github repo
 -   follow project on circle ci and configure project settings
--   create common project files
-    -   .editorconfig
+-   create common project files and install dev dependencies
     -   .circleci/config.yml
-    -   README.md
-    -   LICENSE
-    -   package.json
-    -   .gitignore
+    -   .editorconfig
     -   .eslintrc.yml
-    -   commitlint.config.js
-    -   .npmrc
+    -   .gitignore
     -   .markdownlint
+    -   .prettierrc
+    -   .prettierignore
+    -   .npmrc
+    -   LICENSE
+    -   README.md
+    -   commitlint.config.js
+    -   package.json
+-   generate npm scripts
 -   push local commits to github
 -   setup branch protection
--   install dev dependendencies
+-   Follow project with dependabot
+
+### Options
+
+-   `--public`: Make the GitHub repo a public repo.
+-   `--local-only`: Only scaffold the project locally; do not set up GitHub or
+    services (Note: this flag is not well tested).
 
 ## Maintainers
 
