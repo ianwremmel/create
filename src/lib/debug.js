@@ -2,15 +2,27 @@
 
 const path = require('path');
 
-const chalk = require('chalk');
+const chalk = require('chalk').default || require('chalk');
 const debug = require('debug');
 const invariant = require('invariant');
 const supportsColor = require('supports-color');
 
-const pkg = require('../../package');
+const pkg = require('../../package.json');
 
 module.exports = d;
-exports.f = f;
+
+/**
+ * @callback FormatFunction
+ * @param {TemplateStringsArray} literals
+ * @param {...any} placeholders
+ * @returns {string}
+ */
+
+/**
+ * @typedef {Object} dResult
+ * @property {debug.IDebugger} d
+ * @property {FormatFunction} f
+ */
 
 /**
  * Wrapper around debug to ensure consistency across the project
@@ -19,7 +31,7 @@ exports.f = f;
  * d('a plain string');
  * d(f`a string with ${1} variable`);
  * @param {string} filename
- * @returns {Function}
+ * @returns {dResult}
  */
 function d(filename) {
   invariant(filename, '$filename is required');
@@ -46,28 +58,26 @@ function d(filename) {
 
 /**
  * Formatter for template strings.
- * @param {Array<string>} tpl
- * @param {Array<mixed>} params
+ * @param {TemplateStringsArray} literals
+ * @param {...any} placeholders
  * @returns {string}
  */
-function f(tpl, ...params) {
+function f(literals, ...placeholders) {
   let res = '';
-  for (let i = 0; i < tpl.length; i++) {
-    res += tpl[i];
+  for (let i = 0; i < literals.length; i++) {
+    res += literals[i];
     // If we've reached that last position, don't print params[i] (params will
     // always have one less entry than tpl)
-    if (params.length !== i) {
-      res += v(params[i]);
+    if (placeholders.length !== i) {
+      res += v(placeholders[i]);
     }
   }
   return res;
 }
 
-exports.f = f;
-
 /**
  * Colorizes variables for template string
- * @param {mixed} value
+ * @param {any} value
  * @returns {string}
  */
 function v(value) {

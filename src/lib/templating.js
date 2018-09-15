@@ -13,7 +13,7 @@ const {d: debug, f} = require('./debug')(__filename);
  * @param {string} filename - template filename
  * @param {Object} context - argv
  */
-exports.template = async function template(filename, context) {
+exports.template = async function template(filename, context = {}) {
   debug(f`Templating ${filename} into project`);
 
   let tpl;
@@ -61,6 +61,7 @@ exports.copy = async function copy(filename) {
   debug('Done');
 
   debug(f`Copying ${src} to ${dest}`);
+  // @ts-ignore - typescript is picking up the wrong variant
   await copyFile(src, dest);
   debug('Done');
 };

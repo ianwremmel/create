@@ -1,25 +1,36 @@
 #!/usr/bin/env node
 'use strict';
 
+const main = require('..');
+
 // TODO move exit code definitions to a separate file
 const E_UNHANDLED_REJECTION = 64;
 
 // eslint-disable-next-line no-unused-expressions
-const {argv} = require('yargs')
+const { argv } = require('yargs')
   .options({
-    debug: {
+    circle: {
       default: false,
-      description: 'Print stacktraces',
+      describe: 'Should this project be configured for circle ci?',
+      type: 'boolean'
+    },
+    localOnly: {
+      default: false,
+      describe: 'Do not configure GitHub, Circle, etc; just scaffold the project',
+      type: 'boolean'
+    },
+    public: {
+      default: false,
+      describe: 'Make the project public on GitHub',
       type: 'boolean'
     }
   })
-  .commandDir('../src/commands')
-  .demandCommand(1)
-  .help()
-  .recommendCommands();
+  .help();
+
+main(argv);
 
 process.on('unhandledRejection', (err) => {
-  const cmd = `proj ${process.argv
+  const cmd = `create ${process.argv
     .slice(2)
     .join(' ')}`;
   console.error(`Failed to execute "${cmd}"`);

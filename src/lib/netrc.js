@@ -5,7 +5,13 @@ const netrc = require('netrc');
 
 const {d: debug, f} = require('./debug')(__filename);
 
-exports.check = async function check(machine, testurl) {
+/**
+ * Checks if the netrc for the specified machine is valid
+ *
+ * @param {string} machine
+ * @param {string} testurl
+ */
+async function check(machine, testurl) {
   const config = netrc();
   const auth = config[machine];
 
@@ -33,10 +39,16 @@ exports.check = async function check(machine, testurl) {
       f`request to ${machine} failed; please re-invoke with the corresponding command line switches`
     );
   }
-};
+}
+exports.check = check;
 
-exports.host = function host(machine) {
+/**
+ * @param {string} machine
+ * @returns {Object}
+ */
+function host(machine) {
   const config = netrc();
   const auth = config[machine];
   return Object.assign({}, auth);
-};
+}
+exports.host = host;

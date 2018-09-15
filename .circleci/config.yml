@@ -1,9 +1,9 @@
 restore_cache: &restore_cache
   keys:
-    - node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package.json" }}
+    - node-modules-{{ arch }}-{{ checksum "package-lock.json" }}
 
 save_cache: &save_cache
-  key: node-modules-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ checksum "package.json" }}
+  key: node-modules-{{ arch }}-{{ checksum "package-lock.json" }}
   paths:
     - node_modules
 
@@ -21,21 +21,21 @@ version: 2
 jobs:
   lint:
     docker:
-      - image: node:8
+      - image: node:10
     steps:
       - checkout
       - restore_cache: *restore_cache
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
       - save_cache: *save_cache
 
   release:
     docker:
-      - image: node:8
+      - image: node:10
     steps:
       - checkout
       - restore_cache: *restore_cache
-      - run: npm install
+      - run: npm ci
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then

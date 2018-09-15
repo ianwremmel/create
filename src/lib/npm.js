@@ -7,12 +7,12 @@ const {d: debug, f} = require('./debug')(__filename);
 /**
  * Use the npm command line to install the specifed packages and save them as
  * devDependencies
- * @param {Array<string>} packages
+ * @param {string[]} packages
  */
 async function npmInstallDev(packages) {
-  debug(f`installing dev dependencies`, packages);
+  debug('installing dev dependencies', packages);
   await exec(`npm install --save-dev ${packages.join(' ')}`);
-  debug(f`installed dev dependencies`);
+  debug('installed dev dependencies');
 }
 
 exports.npmInstallDev = npmInstallDev;
@@ -24,7 +24,7 @@ exports.npmInstallDev = npmInstallDev;
 async function npmInstallPeersOf(packageName) {
   debug(f`installing peers of ${packageName}`);
   const [out] = await exec(`npm info --json ${packageName}`);
-  const info = JSON.parse(out);
+  const info = JSON.parse(out.toString());
   await npmInstallDev(Object.keys(info.peerDependencies));
 }
 
