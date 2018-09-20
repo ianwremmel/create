@@ -346,22 +346,32 @@ async function followWithCircle(cci, details) {
   debug(
     f`Following project ${details.username}/${details.project} on Circle CI`
   );
-  await cci.follow(details);
+  try {
+    await cci.follow(details);
+  } catch (err) {
+    debug('Failed to follow project. Waiting 10 seconds and trying again.');
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+  }
   debug('Done');
 
   debug(
     'Enable autocancel builds, build fork PRs, and disabling secrets on fork PRs'
   );
-  await cci.configure({
-    settings: {
-      // eslint-disable-next-line camelcase
-      feature_flags: {
-        'autocancel-builds': true,
-        'build-fork-prs': true,
-        'forks-receive-secret-env-vars': false
-      }
-    },
-    ...details
-  });
-  debug('Done');
+  try {
+    await cci.configure({
+      settings: {
+        // eslint-disable-next-line camelcase
+        feature_flags: {
+          'autocancel-builds': true,
+          'build-fork-prs': true,
+          'forks-receive-secret-env-vars': false
+        }
+      },
+      ...details
+    });
+    debug('Done');
+  } catch (err) {
+    console.error('Failed to fully configure Circle CI');
+    console.error(err);
+  }
 }
