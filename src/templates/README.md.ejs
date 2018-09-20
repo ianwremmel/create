@@ -6,21 +6,19 @@
 
 <!-- PROJ: Badges Start -->
 <%=  [
-  license && `[![license](https://img.shields.io/github/license/${githubUserName}/${githubRepoName}.svg)](https://github.com/${githubUserName}/${githubRepoName}/blob/master/LICENSE)`,
+  license && `[![license](https://img.shields.io/github/license/${org}/${githubRepoName}.svg)](https://github.com/${org}/${githubRepoName}/blob/master/LICENSE)`,
   `[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)`,
-  javascript && `[![npm (scoped)](https://img.shields.io/npm/v/@${githubUserName}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${githubUserName}/${githubRepoName})`,
-  javascript && `[![npm](https://img.shields.io/npm/dm/@${githubUserName}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${githubUserName}/${githubRepoName})`
+  javascript && `[![npm (scoped)](https://img.shields.io/npm/v/@${org}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${org}/${githubRepoName})`,
+  javascript && `[![npm](https://img.shields.io/npm/dm/@${org}/${githubRepoName}.svg)](https://www.npmjs.com/package/@${org}/${githubRepoName})`
 ].filter(Boolean).join('\n') %>
 
 <%= javascript && [
   `[![Dependabot badge](https://img.shields.io/badge/Dependabot-active-brightgreen.svg)](https://dependabot.com/)`,
-  `[![dependencies Status](https://david-dm.org/@${githubUserName}/${githubRepoName}/status.svg)](https://david-dm.org/@${githubUserName}/${githubRepoName})`,
-  `[![devDependencies Status](https://david-dm.org/@${githubUserName}/${githubRepoName}/dev-status.svg)](https://david-dm.org/@${githubUserName}/${githubRepoName}?type=dev)`,
   `[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)`,
 ].join('\n') %>
 
 <%= [
-  `[![CircleCI](https://circleci.com/gh/${githubUserName}/${githubRepoName}.svg?style=svg)](https://circleci.com/gh/${githubUserName}/${githubRepoName})`,
+  `[![CircleCI](https://circleci.com/gh/${org}/${githubRepoName}.svg?style=svg)](https://circleci.com/gh/${org}/${githubRepoName})`,
   ].filter(Boolean).join('\n')
 %>
 <!-- PROJ: Badges End -->
@@ -57,4 +55,4 @@ PRs Welcome
 
 ## License
 
-[<%= license %>](LICENSE) &copy; [<%= githubDisplayName %>](https://github.com/<%= githubUserName %>) <%= (new Date()).getFullYear() %> until at least now
+[<%= license %>](LICENSE) &copy; [<%= githubOrgName %>](https://github.com/<%= org %>) <%= (new Date()).getFullYear() %> until at least now

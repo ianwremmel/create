@@ -63,10 +63,12 @@ const scripts = [
  * @param {string} options.packageName
  * @param {string} options.repoName
  * @param {GitHub.ReposGetResponse|GitHub.ReposCreateResponse} options.remoteRepo
+ * @param {string} options.org
+ * @param {string} options.orgName
  * @param {GitHub} github
  */
 async function scaffold(
-  {githubUserObject, remoteRepo, repoName, packageName},
+  {githubUserObject, remoteRepo, repoName, packageName, org, orgName},
   github
 ) {
   if (!(await exists('README.md'))) {
@@ -74,10 +76,12 @@ async function scaffold(
 
     template('README.md', {
       githubDisplayName: githubUserObject.name,
+      githubOrgName: orgName,
       githubRepoName: repoName,
       githubUserName: githubUserObject.login,
       javascript: true,
       license: 'MIT',
+      org,
       packageName,
       shortDescription: ''
     });
