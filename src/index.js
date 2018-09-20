@@ -54,7 +54,8 @@ async function create(argv) {
     console.log('Creating GitHub repository');
     const remoteRepo = await getOrCreateRemoteRepo(github, {
       name: repoName,
-      owner: org,
+      org,
+      owner: org || githubUserObject.login,
       private: !argv.public
     });
     console.log('Done');
