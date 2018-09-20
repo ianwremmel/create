@@ -4,6 +4,7 @@
  * @typedef {Object} CreateArgs
  * @property {boolean} localOnly
  * @property {boolean} public
+ * @property {string} [org]
  */
 const {exec} = require('mz/child_process');
 
@@ -39,12 +40,21 @@ async function create(argv) {
     }
 
     const {data: githubUserObject} = await github.users.get({});
-    const packageName = `@${githubUserObject.login}/${repoName}`;
+
+    let org = githubUserObject.login;
+    let orgName = githubUserObject.name;
+    if (argv.org) {
+      const {data: githubOrgObject} = await github.orgs.get({org: argv.org});
+      org = githubOrgObject.login;
+      orgName = githubOrgObject.name;
+    }
+
+    const packageName = `@${org}/${repoName}`;
 
     console.log('Creating GitHub repository');
     const remoteRepo = await getOrCreateRemoteRepo(github, {
       name: repoName,
-      owner: githubUserObject.login,
+      owner: org,
       private: !argv.public
     });
     console.log('Done');
@@ -60,7 +70,7 @@ async function create(argv) {
     console.log('Following project with Circle CI');
     await followWithCircle(cci, {
       project: repoName,
-      username: githubUserObject.login
+      username: org
     });
     console.log('Done');
 
@@ -78,6 +88,8 @@ async function create(argv) {
     await scaffold(
       {
         githubUserObject,
+        org,
+        orgName,
         packageName,
         remoteRepo,
         repoName
@@ -98,7 +110,7 @@ async function create(argv) {
       await github.repos.updateBranchProtection({
         branch: 'master',
         enforce_admins: true,
-        owner: githubUserObject.login,
+        owner: org,
         repo: repoName,
         required_pull_request_reviews: null,
         required_status_checks: {
@@ -134,9 +146,7 @@ async function create(argv) {
         console.log(`  ${remoteRepo.html_url}`);
 
         console.log('CircleCI:');
-        console.log(
-          `  https://circleci.com/gh/${githubUserObject.login}/${repoName}`
-        );
+        console.log(`  https://circleci.com/gh/${org}/${repoName}`);
       }
 
       console.log();

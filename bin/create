@@ -19,6 +19,11 @@ const { argv } = require('yargs')
       describe: 'Do not configure GitHub, Circle, etc; just scaffold the project',
       type: 'boolean'
     },
+    org: {
+      default: '',
+      describe: 'Set the GitHub org name if this project is part of an org instead of your personal account',
+      type: 'string'
+    },
     public: {
       default: false,
       describe: 'Make the project public on GitHub',
