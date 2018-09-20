@@ -54,7 +54,8 @@ async function create(argv) {
     console.log('Creating GitHub repository');
     const remoteRepo = await getOrCreateRemoteRepo(github, {
       name: repoName,
-      owner: org,
+      org,
+      owner: org || githubUserObject.login,
       private: !argv.public
     });
     console.log('Done');
@@ -124,14 +125,19 @@ async function create(argv) {
 
     if (!argv.localOnly) {
       console.log('Following project with dependabot');
-      await follow(
-        {
-          githubRepoObject: remoteRepo,
-          githubUserObject
-        },
-        github
-      );
-      console.log('Done');
+      try {
+        await follow(
+          {
+            githubRepoObject: remoteRepo,
+            githubUserObject
+          },
+          github
+        );
+        console.log('Done');
+      } catch (err) {
+        console.error('Failed to follow project with dependabot');
+        console.error(err);
+      }
     }
 
     if (argv.localOnly) {

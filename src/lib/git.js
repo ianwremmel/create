@@ -46,14 +46,31 @@ async function addAndCommit(files, msg) {
  * Creates a remote repository on GitHub
  * @param {GitHub} github
  * @param {Object} details
- * @param {string} details.owner - github org or username
+ * @param {string} [details.org] - if not specified, repo will be created for
+ * current user
+ * * @param {string} [details.owner] - if not specified, repo will be created for
+ * current user
  * @param {string} details.name - github repo name
  * @param {boolean} details.private
  * @returns {Promise<GitHub.ReposGetResponse|GitHub.ReposCreateResponse>} - The GitHub API repo object
  */
 async function getOrCreateRemoteRepo(github, details) {
   try {
-    debug('Creating github repo');
+    if (details.org) {
+      debug(f`Creating github repo ${details.name} for org ${details.org}`);
+      // this is to trick the typescript compiler into noticing that org is
+      // definitely defined here
+      const realDetails = {
+        name: details.name,
+        org: details.org,
+        private: details.private
+      };
+      const {data: githubRepo} = await github.repos.createForOrg(realDetails);
+      debug('Done');
+      return githubRepo;
+    }
+
+    debug(f`Creating github repo ${details.name} for current github user`);
     const {data: githubRepo} = await github.repos.create(details);
     debug('Done');
     return githubRepo;
@@ -66,7 +83,7 @@ async function getOrCreateRemoteRepo(github, details) {
     debug('Project already seems to exist on GitHub');
     debug('Fetching GitHub repo details');
     const repoDetails = {
-      owner: details.owner,
+      owner: details.org || details.owner,
       repo: details.name
     };
     const {data: githubRepo} = await github.repos.get(repoDetails);
