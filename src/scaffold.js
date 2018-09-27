@@ -90,7 +90,7 @@ async function scaffold(
       debug('creating LICENSE');
 
       await template('LICENSE', {
-        licenseHolderDisplayName: githubUserObject.name
+        licenseHolderDisplayName: orgName || githubUserObject.name
       });
 
       debug('committing LICENSE');

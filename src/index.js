@@ -45,7 +45,7 @@ async function create(argv) {
     let orgName = githubUserObject.name;
     if (argv.org) {
       const {data: githubOrgObject} = await github.orgs.get({org: argv.org});
-      org = githubOrgObject.login;
+      org = githubOrgObject.login.toLowerCase();
       orgName = githubOrgObject.name;
     }
 
