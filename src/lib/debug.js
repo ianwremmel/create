@@ -87,9 +87,9 @@ function v(value) {
 
   switch (typeof value) {
     case 'boolean':
-      return value ? chalk.green(value) : chalk.red(value);
+      return value ? chalk.green(String(value)) : chalk.red(String(value));
     case 'number':
-      return chalk.yellow(value);
+      return chalk.yellow(String(value));
     case 'string':
       if (value.includes('/')) {
         return chalk.green(value);
