@@ -49,6 +49,6 @@ exports.check = check;
 function host(machine) {
   const config = netrc();
   const auth = config[machine];
-  return Object.assign({}, auth);
+  return {...auth};
 }
 exports.host = host;
