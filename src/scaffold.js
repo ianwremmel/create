@@ -162,6 +162,7 @@ async function scaffold(
     'eslint',
     'husky',
     'lint-staged',
+    'markdown-toc',
     'npm-run-all',
     'semantic-release'
   ]);
