@@ -234,7 +234,7 @@ async function scaffold(
       const keys = Object.keys(pkg.scripts).sort();
 
       /** @type {Object} */
-      let result = {};
+      const result = {};
 
       pkg.scripts = keys.reduce((acc, key) => {
         acc[key] = pkg.scripts[key];

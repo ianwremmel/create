@@ -1,21 +1,6 @@
-env:
-  es6: true
-  node: true
 extends:
-    - "plugin:@ianwremmel/ianwremmel/standard"
     - "plugin:@ianwremmel/ianwremmel/node"
 parserOptions:
   sourceType: "script"
 rules:
   no-console: off
-  no-warning-comments: error
-  quotes:
-    - error
-    - single
-    -
-      avoidEscape: true
-overrides:
-  -
-    files: '*/commands/**/*.js'
-    rules:
-      require-jsdoc: off
