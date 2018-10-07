@@ -13,10 +13,6 @@ const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
 
 const scripts = [
   {
-    name: 'commitmsg',
-    to: 'commitlint -e'
-  },
-  {
     name: 'lint',
     to: 'npm-run-all lint:*'
   },
@@ -31,10 +27,6 @@ const scripts = [
   {
     name: 'lint:js',
     to: 'npm run --silent eslint -- .'
-  },
-  {
-    name: 'precommit',
-    to: 'lint-staged'
   },
   {
     name: 'test',
@@ -170,6 +162,7 @@ async function scaffold(
     'eslint',
     'husky',
     'lint-staged',
+    'markdown-toc',
     'npm-run-all',
     'semantic-release'
   ]);
@@ -234,7 +227,7 @@ async function scaffold(
       const keys = Object.keys(pkg.scripts).sort();
 
       /** @type {Object} */
-      let result = {};
+      const result = {};
 
       pkg.scripts = keys.reduce((acc, key) => {
         acc[key] = pkg.scripts[key];

@@ -29,13 +29,11 @@ class CircleCI {
    * @returns {Promise<Object>} -
    */
   _request(options) {
-    const payload = Object.assign(
-      {
-        json: true,
-        qs: {'circle-token': netrc.host('circleci.com').login}
-      },
-      options
-    );
+    const payload = {
+      json: true,
+      qs: {'circle-token': netrc.host('circleci.com').login},
+      ...options
+    };
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
     return Promise.resolve(request(payload));
   }
