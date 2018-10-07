@@ -10,14 +10,12 @@
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "commitmsg": "commitlint -e",
     "eslint": "eslint --ignore --ignore-path .gitignore --fix",
     "lint": "npm-run-all lint:*",
     "lint:changelog": "commitlint --from origin/master --to HEAD",
     "mocha-reporter-options": "[ -n \"${CI}\" ] && echo '--reporter xunit --reporter-options output=reports/junit/test.xml'",
     "lint:js": "npm run --silent eslint -- .",
     "lint:types": "tsc",
-    "precommit": "lint-staged",
     "test": "nyc --reporter=text mocha $(npm run --silent mocha-reporter-options) './src/**/*-spec.js'",
     "semantic-release": "semantic-release"
   },
@@ -77,5 +75,11 @@
   },
   "release": {
     "verifyConditions": "condition-circle"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -e",
+      "pre-commit": "lint-staged"
+    }
   }
 }

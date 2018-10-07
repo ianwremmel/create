@@ -13,10 +13,6 @@ const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
 
 const scripts = [
   {
-    name: 'commitmsg',
-    to: 'commitlint -e'
-  },
-  {
     name: 'lint',
     to: 'npm-run-all lint:*'
   },
@@ -31,10 +27,6 @@ const scripts = [
   {
     name: 'lint:js',
     to: 'npm run --silent eslint -- .'
-  },
-  {
-    name: 'precommit',
-    to: 'lint-staged'
   },
   {
     name: 'test',
