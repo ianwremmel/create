@@ -41,21 +41,22 @@ async function create(argv) {
 
     const {data: githubUserObject} = await github.users.get({});
 
-    let org = githubUserObject.login;
-    let orgName = githubUserObject.name;
+    let org, orgName;
     if (argv.org) {
       const {data: githubOrgObject} = await github.orgs.get({org: argv.org});
       org = githubOrgObject.login.toLowerCase();
       orgName = githubOrgObject.name;
     }
 
-    const packageName = `@${org}/${repoName}`;
+    let githubAccountName = org || githubUserObject.login;
+    let githubDisplayName = orgName || githubUserObject.name;
+    const packageName = `@${githubAccountName}/${repoName}`;
 
     console.log('Creating GitHub repository');
     const remoteRepo = await getOrCreateRemoteRepo(github, {
       name: repoName,
       org,
-      owner: org || githubUserObject.login,
+      owner: githubAccountName,
       private: !argv.public
     });
     console.log('Done');
@@ -71,7 +72,7 @@ async function create(argv) {
     console.log('Following project with Circle CI');
     await followWithCircle(cci, {
       project: repoName,
-      username: org
+      username: githubAccountName
     });
     console.log('Done');
 
@@ -89,8 +90,8 @@ async function create(argv) {
     await scaffold(
       {
         githubUserObject,
-        org,
-        orgName,
+        org: githubAccountName,
+        orgName: githubDisplayName,
         packageName,
         remoteRepo,
         repoName
@@ -111,7 +112,7 @@ async function create(argv) {
       await github.repos.updateBranchProtection({
         branch: 'master',
         enforce_admins: true,
-        owner: org,
+        owner: githubAccountName,
         repo: repoName,
         required_pull_request_reviews: null,
         required_status_checks: {
@@ -152,7 +153,9 @@ async function create(argv) {
         console.log(`  ${remoteRepo.html_url}`);
 
         console.log('CircleCI:');
-        console.log(`  https://circleci.com/gh/${org}/${repoName}`);
+        console.log(
+          `  https://circleci.com/gh/${githubAccountName}/${repoName}`
+        );
       }
 
       console.log();

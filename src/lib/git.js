@@ -46,7 +46,7 @@ async function addAndCommit(files, msg) {
  * Creates a remote repository on GitHub
  * @param {GitHub} github
  * @param {Object} details
- * @param {string} [details.org] - if not specified, repo will be created for
+ * @param {string|undefined} [details.org] - if not specified, repo will be created for
  * current user
  * * @param {string} [details.owner] - if not specified, repo will be created for
  * current user
