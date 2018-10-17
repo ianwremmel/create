@@ -5,6 +5,7 @@
 <!-- (optional) Put banner here -->
 
 <!-- PROJ: Badges Start -->
+
 <%=  [
   license && `[![license](https://img.shields.io/github/license/${org}/${githubRepoName}.svg)](https://github.com/${org}/${githubRepoName}/blob/master/LICENSE)`,
   `[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)`,
@@ -21,9 +22,10 @@
   `[![CircleCI](https://circleci.com/gh/${org}/${githubRepoName}.svg?style=svg)](https://circleci.com/gh/${org}/${githubRepoName})`,
   ].filter(Boolean).join('\n')
 %>
+
 <!-- PROJ: Badges End -->
 
-> <%= shortDescription %>
+><%= shortDescription ? ` ${shortDescription}` : '' %>
 
 ## Table of Contents
 

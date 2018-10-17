@@ -184,6 +184,15 @@ async function scaffold(
     return pkg;
   });
 
+  tx = wrap(tx, async (fn, p, shift) => {
+    const pkg = await fn(p, shift);
+    pkg['lint-staged'] = {
+      '*.js': 'npm run eslint -- ',
+      'bin/**': 'npm run eslint -- '
+    };
+    return pkg;
+  });
+
   if (!(await exists('.eslintrc.yml'))) {
     await template('.eslintrc.yml');
     await addAndCommit(['.eslintrc.yml'], 'build(eslint): add eslint config');
