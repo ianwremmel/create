@@ -27,7 +27,7 @@
   "license": "MIT",
   "dependencies": {
     "@ianwremmel/pkgshift": "^1.1.1",
-    "@octokit/rest": "^15.2.2",
+    "@octokit/rest": "^16.3.0",
     "chalk": "^2.3.0",
     "invariant": "^2.2.2",
     "lodash": "^4.17.4",
@@ -45,7 +45,7 @@
     "@ianwremmel/eslint-plugin-ianwremmel": "^2.0.0",
     "@types/debug": "0.0.31",
     "@types/invariant": "^2.2.29",
-    "@types/lodash": "^4.14.116",
+    "@types/lodash": "^4.14.119",
     "@types/mkdirp": "^0.5.2",
     "@types/mz": "0.0.32",
     "@types/request-promise-native": "^1.0.15",
@@ -68,7 +68,7 @@
     "npm-run-all": "^4.1.3",
     "prettier": "^1.14.3",
     "semantic-release": "^15.0.2",
-    "typescript": "^3.0.3"
+    "typescript": "^3.2.2"
   },
   "lint-staged": {
     "*.js": "npm run eslint"

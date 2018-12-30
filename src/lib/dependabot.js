@@ -10,14 +10,14 @@ const {d: debug} = require('./debug')(__filename);
  *
  * @param {Object} options
  * @param {any} options.githubUserObject
- * @param {GitHub.ReposGetResponse|GitHub.ReposCreateResponse} options.githubRepoObject
+ * @param {GitHub.ReposGetResponse|GitHub.ReposCreateForAuthenticatedUserResponse|GitHub.ReposCreateInOrgResponse} options.githubRepoObject
  * @param {GitHub} github
  */
 async function follow({githubRepoObject, githubUserObject}, github) {
   debug('Creating temporary github token');
   const {
     data: {token, id: tokenId}
-  } = await github.authorization.create({
+  } = await github.oauthAuthorizations.createAuthorization({
     note: 'Temporary token for @ianwremmel/create',
     scopes: ['repo']
   });
@@ -45,9 +45,9 @@ async function follow({githubRepoObject, githubUserObject}, github) {
     debug('Followed project with dependabot');
   } finally {
     debug('Removing temporary github token');
-    await github.authorization.delete({
+    await github.oauthAuthorizations.deleteAuthorization({
       // eslint-disable-next-line camelcase
-      authorization_id: String(tokenId)
+      authorization_id: tokenId
     });
     debug('Removed temporary github token');
   }

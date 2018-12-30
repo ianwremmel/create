@@ -39,7 +39,7 @@ async function create(argv) {
       throw new TypeError('This line cannot be hit');
     }
 
-    const {data: githubUserObject} = await github.users.get({});
+    const {data: githubUserObject} = await github.users.getAuthenticated({});
 
     let org, orgName;
     if (argv.org) {
@@ -48,8 +48,8 @@ async function create(argv) {
       orgName = githubOrgObject.name;
     }
 
-    let githubAccountName = org || githubUserObject.login;
-    let githubDisplayName = orgName || githubUserObject.name;
+    const githubAccountName = org || githubUserObject.login;
+    const githubDisplayName = orgName || githubUserObject.name;
     const packageName = `@${githubAccountName}/${repoName}`;
 
     console.log('Creating GitHub repository');
