@@ -52,7 +52,7 @@ async function addAndCommit(files, msg) {
  * current user
  * @param {string} details.name - github repo name
  * @param {boolean} details.private
- * @returns {Promise<GitHub.ReposGetResponse|GitHub.ReposCreateResponse>} - The GitHub API repo object
+ * @returns {Promise<GitHub.ReposGetResponse|GitHub.ReposCreateForAuthenticatedUserResponse|GitHub.ReposCreateInOrgResponse>} - The GitHub API repo object
  */
 async function getOrCreateRemoteRepo(github, details) {
   try {
@@ -65,13 +65,15 @@ async function getOrCreateRemoteRepo(github, details) {
         org: details.org,
         private: details.private
       };
-      const {data: githubRepo} = await github.repos.createForOrg(realDetails);
+      const {data: githubRepo} = await github.repos.createInOrg(realDetails);
       debug('Done');
       return githubRepo;
     }
 
     debug(f`Creating github repo ${details.name} for current github user`);
-    const {data: githubRepo} = await github.repos.create(details);
+    const {data: githubRepo} = await github.repos.createForAuthenticatedUser(
+      details
+    );
     debug('Done');
     return githubRepo;
   } catch (err) {

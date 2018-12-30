@@ -54,7 +54,7 @@ const scripts = [
  * @param {any} options.githubUserObject
  * @param {string} options.packageName
  * @param {string} options.repoName
- * @param {GitHub.ReposGetResponse|GitHub.ReposCreateResponse} options.remoteRepo
+ * @param {GitHub.ReposGetResponse|GitHub.ReposCreateForAuthenticatedUserResponse|GitHub.ReposCreateInOrgResponse} options.remoteRepo
  * @param {string} options.org
  * @param {string} options.orgName
  * @param {GitHub} github
@@ -118,7 +118,7 @@ async function scaffold(
     await writeFile('.npmrc', `package-lock=false\n${npmrc}`);
   }
 
-  const {data: githubPublicEmails} = await github.users.getPublicEmails({});
+  const {data: githubPublicEmails} = await github.users.listPublicEmails({});
 
   const githubPublicEmail = (
     githubPublicEmails.find(({primary}) => primary) || githubPublicEmails[0]
