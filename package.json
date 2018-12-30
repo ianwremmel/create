@@ -45,7 +45,7 @@
     "@ianwremmel/eslint-plugin-ianwremmel": "^2.0.0",
     "@types/debug": "0.0.31",
     "@types/invariant": "^2.2.29",
-    "@types/lodash": "^4.14.116",
+    "@types/lodash": "^4.14.119",
     "@types/mkdirp": "^0.5.2",
     "@types/mz": "0.0.32",
     "@types/request-promise-native": "^1.0.15",
