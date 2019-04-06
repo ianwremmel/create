@@ -2,7 +2,7 @@ import * as inquirer from 'inquirer';
 import {debug, format as f} from '@ianwremmel/debug';
 import {exec} from 'mz/child_process';
 
-import {CircleCI, followWithCircle} from './lib/circleci';
+import {followWithCircleCI} from './lib/circle';
 import {exists} from './lib/file';
 import {addAndCommit} from './lib/git';
 import {init as initGitHub} from './lib/github';
@@ -22,7 +22,7 @@ const {follow} = require('./lib/dependabot');
 
 async function create() {
   try {
-    const {license, org, publicProject} = await inquirer.prompt([
+    const {circleToken, license, org, publicProject} = await inquirer.prompt([
       {
         choices: ['MIT', 'UNLICENSED'],
         default: 'MIT',
@@ -45,9 +45,23 @@ async function create() {
         name: 'publicProject',
         type: 'confirm',
       },
+      {
+        default: await (async () => {
+          try {
+            const res = await exec("op get item 'Circle CI API Token'")
+              .toString()
+              .trim();
+            const data = JSON.parse(res);
+            return data.details.password;
+          } catch {
+            return '';
+          }
+        })(),
+        message: 'Circle CI API Token',
+        name: 'circleciToken',
+        type: 'password',
+      },
     ]);
-
-    const cci = new CircleCI();
 
     const repoName = process
       .cwd()
@@ -89,9 +103,10 @@ async function create() {
     console.log('Done');
 
     console.log('Following project with Circle CI');
-    await followWithCircle(cci, {
+    await followWithCircleCI({
       project: repoName,
-      username: githubAccountName,
+      token: circleToken,
+      userOrOrgName: githubAccountName,
     });
     console.log('Done');
 
