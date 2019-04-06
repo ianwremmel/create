@@ -1,6 +1,18 @@
 extends:
     - "plugin:@ianwremmel/ianwremmel/node"
+overrides:
+  - files:
+      - "**/*.ts"
+    parser: "@typescript-eslint/parser"
+    parserOptions:
+      project: "./tsconfig.json"
+    rules:
+      import/export: off
+      no-redeclare: off
+      # use as types doesn"t count as used
+      no-unused-vars: off
 parserOptions:
-  sourceType: "script"
+  sourceType: "module"
 rules:
   no-console: off
+  require-jsdoc: off

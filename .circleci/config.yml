@@ -39,7 +39,8 @@ jobs:
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              # According to the sematic release code, this command will not
+              npm run build
+              # According to the sematic release code, this command will not run
               # when there are no changes
               npm run semantic-release
             fi
