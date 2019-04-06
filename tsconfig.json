@@ -9,7 +9,9 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    // Added skipLibCheck to avoid failures from the node_modules directory
+    "skipLibCheck": true
   },
   "include": [
     "bin/**/*",
