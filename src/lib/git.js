@@ -1,13 +1,11 @@
-const {exec} = require('mz/child_process');
+import {exec} from 'mz/child_process';
 // eslint-disable-next-line no-unused-vars
-const GitHub = require('@octokit/rest');
+import * as GitHub from '@octokit/rest';
+import {writeFile} from 'mz/fs';
+
+import {readFileOrEmpty} from './file';
 
 const {d: debug, f} = require('./debug')(__filename);
-
-exports.addAndCommit = addAndCommit;
-exports.getOrCreateRemoteRepo = getOrCreateRemoteRepo;
-exports.initializeLocalRepo = initializeLocalRepo;
-exports.pushAndTrackBranch = pushAndTrackBranch;
 
 const rootCommitMessage = `root - this space intentionally left blank
 
@@ -26,10 +24,14 @@ https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/
  * @param {Array<string>} files
  * @param {string} msg
  */
-async function addAndCommit(files, msg) {
+export async function addAndCommit(files, msg) {
   debug('Resetting any staged files');
   await exec('git reset .');
   debug('Done');
+
+  if (files.includes('package.json')) {
+    files.push('package-lock.json');
+  }
 
   debug('Adding files', files);
   await exec(`git add ${files.join(' ')}`);
@@ -52,7 +54,7 @@ async function addAndCommit(files, msg) {
  * @param {boolean} details.private
  * @returns {Promise<GitHub.ReposGetResponse|GitHub.ReposCreateForAuthenticatedUserResponse|GitHub.ReposCreateInOrgResponse>} - The GitHub API repo object
  */
-async function getOrCreateRemoteRepo(github, details) {
+export async function getOrCreateRemoteRepo(github, details) {
   try {
     if (details.org) {
       debug(f`Creating github repo ${details.name} for org ${details.org}`);
@@ -96,7 +98,7 @@ async function getOrCreateRemoteRepo(github, details) {
  * Creates a local git repository and points its origin at githubRepoObject
  * @param {Object} [githubRepoObject]
  */
-async function initializeLocalRepo(githubRepoObject) {
+export async function initializeLocalRepo(githubRepoObject) {
   try {
     debug('Checking if this project has a git repo');
     await exec('git status');
@@ -139,6 +141,31 @@ async function initializeLocalRepo(githubRepoObject) {
  * @param {string} [options.branch=master]
  * @param {string} [options.remote=origin]
  */
-async function pushAndTrackBranch({branch = 'master', remote = 'origin'} = {}) {
+export async function pushAndTrackBranch({
+  branch = 'master',
+  remote = 'origin',
+} = {}) {
   await exec(`git push -u ${remote} ${branch}:${branch}`);
+}
+
+/**
+ * @param {string[]} [ignored=[]]
+ */
+export async function addToGitIgnore(ignored = []) {
+  debug('reading .gitignore');
+  const raw = String(await readFileOrEmpty('.gitignore'));
+  const gitignore = new Set(raw.split('\n'));
+
+  debug('adding ${ignored.join(', ') to .gitignore');
+  for (const ignore of ignored) {
+    gitignore.add(ignore);
+  }
+
+  debug('writing .gitignore');
+  await writeFile(
+    '.gitignore',
+    Array.from(gitignore)
+      .filter(Boolean)
+      .join('\n')
+  );
 }

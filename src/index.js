@@ -1,3 +1,7 @@
+import * as inquirer from 'inquirer';
+
+// eslint-disable-next-line import/no-unresolved
+import {scaffold} from './scaffold';
 
 /**
  * @typedef {Object} CreateArgs
@@ -7,7 +11,6 @@
  */
 const {exec} = require('mz/child_process');
 
-const {scaffold} = require('./scaffold');
 const {d: debug} = require('./lib/debug')(__filename);
 const {exists} = require('./lib/file');
 const {addAndCommit} = require('./lib/git');
@@ -28,6 +31,14 @@ const {follow} = require('./lib/dependabot');
  */
 async function create(argv) {
   try {
+    const {license} = await inquirer.prompt({
+      choices: ['MIT', 'UNLICENSED'],
+      default: 'MIT',
+      message: 'Select a license',
+      name: 'license',
+      type: 'list',
+    });
+
     const cci = new CircleCI();
 
     const repoName = process
@@ -86,17 +97,16 @@ async function create(argv) {
       );
     }
 
-    await scaffold(
-      {
-        githubUserObject,
-        org: githubAccountName,
-        orgName: githubDisplayName,
-        packageName,
-        remoteRepo,
-        repoName,
-      },
-      github
-    );
+    await scaffold({
+      github,
+      githubUserObject,
+      license,
+      org: githubAccountName,
+      orgName: githubDisplayName,
+      packageName,
+      remoteRepo,
+      repoName,
+    });
 
     if (!argv.localOnly) {
       console.log('Pushing all changes to GitHub');
