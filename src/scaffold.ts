@@ -195,9 +195,6 @@ async function configureEslintAndPrettier(): Promise<void> {
       to: 'npm run --silent eslint -- .',
     });
 
-    // TODO duplicate this line for ts in the ts section
-    // TODO create a .vscode/settings.json that adds typescript to the vscode
-    // linter list
     addStringOrArray(pkg['lint-staged'], '*.js', 'npm run eslint -- ');
     addStringOrArray(pkg['lint-staged'], 'bin/**', 'npm run eslint -- ');
 
