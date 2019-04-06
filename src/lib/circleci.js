@@ -2,6 +2,7 @@
 
 const invariant = require('invariant');
 const request = require('request-promise-native');
+const prompt = require('prompt-sync')();
 
 const netrc = require('./netrc');
 const {d: debug, f} = require('./debug')(__filename);
@@ -18,8 +19,10 @@ class CircleCI {
    * Constructor. Loads credentials from netrc
    */
   constructor() {
-    const token = netrc.host('circleci.com').login;
-    require('assert')(token);
+    this.token = netrc.host('circleci.com').login;
+    if (!this.token) {
+      this.token = prompt('Circle CI API Token (not stored):');
+    }
   }
 
   /**
@@ -31,7 +34,7 @@ class CircleCI {
   _request(options) {
     const payload = {
       json: true,
-      qs: {'circle-token': netrc.host('circleci.com').login},
+      qs: {'circle-token': this.token},
       ...options,
     };
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
@@ -370,6 +373,6 @@ async function followWithCircle(cci, details) {
     debug('Done');
   } catch (err) {
     console.error('Failed to fully configure Circle CI');
-    console.error(err);
+    console.error(err.message);
   }
 }
