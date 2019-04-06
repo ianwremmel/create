@@ -1,5 +1,3 @@
-'use strict';
-
 const request = require('request-promise-native');
 // eslint-disable-next-line no-unused-vars
 const GitHub = require('@octokit/rest');

@@ -1,5 +1,3 @@
-'use strict';
-
 const GitHub = require('@octokit/rest');
 const netrc = require('netrc');
 const prompt = require('prompt-sync')();

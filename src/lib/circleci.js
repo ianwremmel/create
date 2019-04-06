@@ -1,5 +1,3 @@
-'use strict';
-
 const invariant = require('invariant');
 const request = require('request-promise-native');
 const prompt = require('prompt-sync')();

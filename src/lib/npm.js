@@ -1,5 +1,3 @@
-'use strict';
-
 const {exec} = require('mz/child_process');
 
 const {d: debug, f} = require('./debug')(__filename);

@@ -1,5 +1,3 @@
-'use strict';
-
 const {exec} = require('mz/child_process');
 // eslint-disable-next-line no-unused-vars
 const GitHub = require('@octokit/rest');
