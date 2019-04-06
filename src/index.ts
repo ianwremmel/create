@@ -1,22 +1,16 @@
 import * as inquirer from 'inquirer';
+import {debug, format as f} from '@ianwremmel/debug';
+import {exec} from 'mz/child_process';
 
-// eslint-disable-next-line import/no-unresolved
+import {CircleCI, followWithCircle} from './lib/circleci';
+import {exists} from './lib/file';
+import {addAndCommit} from './lib/git';
+import {init as initGitHub} from './lib/github';
+import {template} from './lib/templating';
 import {scaffold} from './scaffold';
 
-/**
- * @typedef {Object} CreateArgs
- * @property {boolean} localOnly
- * @property {boolean} public
- * @property {string} [org]
- */
-const {exec} = require('mz/child_process');
-const d = require('@ianwremmel/debug').debug(__filename);
+const d = debug(__filename);
 
-const {exists} = require('./lib/file');
-const {addAndCommit} = require('./lib/git');
-const {template} = require('./lib/templating');
-const {CircleCI, followWithCircle} = require('./lib/circleci');
-const github = require('./lib/github');
 const {
   getOrCreateRemoteRepo,
   initializeLocalRepo,
@@ -26,10 +20,13 @@ const {follow} = require('./lib/dependabot');
 
 /* eslint-disable complexity */
 
-/**
- * @param {CreateArgs} argv
- */
-async function create(argv) {
+interface CreateArgs {
+  localOnly: boolean;
+  public: boolean;
+  org?: string;
+}
+
+async function create(argv: CreateArgs) {
   try {
     const {license} = await inquirer.prompt({
       choices: ['MIT', 'UNLICENSED'],
@@ -48,6 +45,8 @@ async function create(argv) {
     if (!repoName) {
       throw new TypeError('This line cannot be hit');
     }
+
+    const github = await initGitHub();
 
     const {data: githubUserObject} = await github.users.getAuthenticated({});
 
@@ -116,8 +115,6 @@ async function create(argv) {
 
     if (!argv.localOnly) {
       console.log('Enforcing branch protection');
-      /* eslint-disable camelcase */
-      // @ts-ignore - the types for
       await github.repos.updateBranchProtection({
         branch: 'master',
         enforce_admins: true,
@@ -130,7 +127,6 @@ async function create(argv) {
         },
         restrictions: null,
       });
-      /* eslint-enable camelcase */
     }
 
     if (!argv.localOnly) {
