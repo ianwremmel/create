@@ -7,7 +7,7 @@ const main = require('..');
 const E_UNHANDLED_REJECTION = 64;
 
 // eslint-disable-next-line no-unused-expressions
-const { argv } = require('yargs')
+const {argv} = require('yargs')
   .options({
     circle: {
       default: false,
@@ -16,12 +16,14 @@ const { argv } = require('yargs')
     },
     localOnly: {
       default: false,
-      describe: 'Do not configure GitHub, Circle, etc; just scaffold the project',
+      describe:
+        'Do not configure GitHub, Circle, etc; just scaffold the project',
       type: 'boolean'
     },
     org: {
       default: '',
-      describe: 'Set the GitHub org name if this project is part of an org instead of your personal account',
+      describe:
+        'Set the GitHub org name if this project is part of an org instead of your personal account',
       type: 'string'
     },
     public: {
@@ -35,9 +37,7 @@ const { argv } = require('yargs')
 main(argv);
 
 process.on('unhandledRejection', (err) => {
-  const cmd = `create ${process.argv
-    .slice(2)
-    .join(' ')}`;
+  const cmd = `create ${process.argv.slice(2).join(' ')}`;
   console.error(`Failed to execute "${cmd}"`);
   console.error(err.stack || err.toString());
   if (argv.debug) {
