@@ -16,10 +16,10 @@ const {d: debug} = require('./debug')(__filename);
 async function follow({githubRepoObject, githubUserObject}, github) {
   debug('Creating temporary github token');
   const {
-    data: {token, id: tokenId}
+    data: {token, id: tokenId},
   } = await github.oauthAuthorizations.createAuthorization({
     note: 'Temporary token for @ianwremmel/create',
-    scopes: ['repo']
+    scopes: ['repo'],
   });
   debug('Created temporary github token');
   try {
@@ -33,21 +33,21 @@ async function follow({githubRepoObject, githubUserObject}, github) {
         directory: '/',
         'package-manager': 'npm_and_yarn',
         'repo-id': githubRepoObject.id,
-        'update-schedule': 'daily'
+        'update-schedule': 'daily',
       },
       headers: {
-        Authorization: `Personal ${token}`
+        Authorization: `Personal ${token}`,
       },
       json: true,
       method: 'POST',
-      url: 'https://api.dependabot.com/update_configs'
+      url: 'https://api.dependabot.com/update_configs',
     });
     debug('Followed project with dependabot');
   } finally {
     debug('Removing temporary github token');
     await github.oauthAuthorizations.deleteAuthorization({
       // eslint-disable-next-line camelcase
-      authorization_id: tokenId
+      authorization_id: tokenId,
     });
     debug('Removed temporary github token');
   }

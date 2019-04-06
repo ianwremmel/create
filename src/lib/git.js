@@ -63,7 +63,7 @@ async function getOrCreateRemoteRepo(github, details) {
       const realDetails = {
         name: details.name,
         org: details.org,
-        private: details.private
+        private: details.private,
       };
       const {data: githubRepo} = await github.repos.createInOrg(realDetails);
       debug('Done');
@@ -86,7 +86,7 @@ async function getOrCreateRemoteRepo(github, details) {
     debug('Fetching GitHub repo details');
     const repoDetails = {
       owner: details.org || details.owner,
-      repo: details.name
+      repo: details.name,
     };
     const {data: githubRepo} = await github.repos.get(repoDetails);
     debug('Done');

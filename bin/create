@@ -12,25 +12,25 @@ const {argv} = require('yargs')
     circle: {
       default: false,
       describe: 'Should this project be configured for circle ci?',
-      type: 'boolean'
+      type: 'boolean',
     },
     localOnly: {
       default: false,
       describe:
         'Do not configure GitHub, Circle, etc; just scaffold the project',
-      type: 'boolean'
+      type: 'boolean',
     },
     org: {
       default: '',
       describe:
         'Set the GitHub org name if this project is part of an org instead of your personal account',
-      type: 'string'
+      type: 'string',
     },
     public: {
       default: false,
       describe: 'Make the project public on GitHub',
-      type: 'boolean'
-    }
+      type: 'boolean',
+    },
   })
   .help();
 

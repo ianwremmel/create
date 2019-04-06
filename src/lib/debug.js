@@ -52,7 +52,7 @@ function d(filename) {
 
   return {
     d: debug(prefix),
-    f
+    f,
   };
 }
 

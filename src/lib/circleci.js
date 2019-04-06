@@ -32,7 +32,7 @@ class CircleCI {
     const payload = {
       json: true,
       qs: {'circle-token': netrc.host('circleci.com').login},
-      ...options
+      ...options,
     };
     payload.uri = `${CIRCLECI_API_BASE}${payload.uri}`;
     return Promise.resolve(request(payload));
@@ -45,7 +45,7 @@ class CircleCI {
   getUser() {
     return this._request({
       method: 'GET',
-      uri: '/me'
+      uri: '/me',
     });
   }
 
@@ -59,7 +59,7 @@ class CircleCI {
   getProject({project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}`
+      uri: `/project/github/${username}/${project}`,
     });
   }
 
@@ -71,7 +71,7 @@ class CircleCI {
   listProjects() {
     return this._request({
       method: 'GET',
-      uri: '/projects'
+      uri: '/projects',
     });
   }
 
@@ -85,7 +85,7 @@ class CircleCI {
   follow({project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/follow`
+      uri: `/project/github/${username}/${project}/follow`,
     });
   }
 
@@ -99,7 +99,7 @@ class CircleCI {
   listBuilds({project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}`
+      uri: `/project/github/${username}/${project}`,
     });
   }
 
@@ -111,7 +111,7 @@ class CircleCI {
   listRecentBuilds() {
     return this._request({
       method: 'GET',
-      uri: '/recent-builds'
+      uri: '/recent-builds',
     });
   }
 
@@ -128,7 +128,7 @@ class CircleCI {
   getBuild({buildNumber, project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}/${buildNumber}`
+      uri: `/project/github/${username}/${project}/${buildNumber}`,
     });
   }
 
@@ -143,7 +143,7 @@ class CircleCI {
   getArtifacts({buildNumber, project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}/${buildNumber}/artifacts`
+      uri: `/project/github/${username}/${project}/${buildNumber}/artifacts`,
     });
   }
 
@@ -158,7 +158,7 @@ class CircleCI {
   retryBuild({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/${buildNumber}/retry`
+      uri: `/project/github/${username}/${project}/${buildNumber}/retry`,
     });
   }
 
@@ -173,7 +173,7 @@ class CircleCI {
   cancelBuild({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/${buildNumber}/cancel`
+      uri: `/project/github/${username}/${project}/${buildNumber}/cancel`,
     });
   }
 
@@ -188,7 +188,7 @@ class CircleCI {
   addUser({buildNumber, project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/${buildNumber}/ssh-users`
+      uri: `/project/github/${username}/${project}/${buildNumber}/ssh-users`,
     });
   }
 
@@ -205,7 +205,7 @@ class CircleCI {
   build({branch, project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/tree/${branch}`
+      uri: `/project/github/${username}/${project}/tree/${branch}`,
     });
   }
 
@@ -220,7 +220,7 @@ class CircleCI {
   createSshKey({project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/ssh-key`
+      uri: `/project/github/${username}/${project}/ssh-key`,
     });
   }
 
@@ -234,7 +234,7 @@ class CircleCI {
   listCheckoutKeys({project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}/checkout-key`
+      uri: `/project/github/${username}/${project}/checkout-key`,
     });
   }
 
@@ -248,7 +248,7 @@ class CircleCI {
   createCheckoutKey({project, username}) {
     return this._request({
       method: 'POST',
-      uri: `/project/github/${username}/${project}/checkout-key`
+      uri: `/project/github/${username}/${project}/checkout-key`,
     });
   }
 
@@ -263,7 +263,7 @@ class CircleCI {
   getCheckoutKey({fingerprint, project, username}) {
     return this._request({
       method: 'GET',
-      uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
+      uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`,
     });
   }
 
@@ -278,7 +278,7 @@ class CircleCI {
   deleteCheckoutKey({fingerprint, project, username}) {
     return this._request({
       method: 'DELETE',
-      uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`
+      uri: `/project/github/${username}/${project}/checkout-key/${fingerprint}`,
     });
   }
 
@@ -292,7 +292,7 @@ class CircleCI {
   clearCache({project, username}) {
     return this._request({
       method: 'DELETE',
-      uri: `/project/github/${username}/${project}/build-cache`
+      uri: `/project/github/${username}/${project}/build-cache`,
     });
   }
 
@@ -305,7 +305,7 @@ class CircleCI {
     return this._request({
       form: {apikey},
       method: 'POST',
-      uri: '/user/heroku-key'
+      uri: '/user/heroku-key',
     });
   }
 
@@ -322,7 +322,7 @@ class CircleCI {
       body: settings,
       json: true,
       method: 'PUT',
-      uri: `/project/github/${username}/${project}/settings`
+      uri: `/project/github/${username}/${project}/settings`,
     });
   }
 }
@@ -362,10 +362,10 @@ async function followWithCircle(cci, details) {
         feature_flags: {
           'autocancel-builds': true,
           'build-fork-prs': true,
-          'forks-receive-secret-env-vars': false
-        }
+          'forks-receive-secret-env-vars': false,
+        },
       },
-      ...details
+      ...details,
     });
     debug('Done');
   } catch (err) {

@@ -18,7 +18,7 @@ const github = require('./lib/github');
 const {
   getOrCreateRemoteRepo,
   initializeLocalRepo,
-  pushAndTrackBranch
+  pushAndTrackBranch,
 } = require('./lib/git');
 const {follow} = require('./lib/dependabot');
 
@@ -57,7 +57,7 @@ async function create(argv) {
       name: repoName,
       org,
       owner: githubAccountName,
-      private: !argv.public
+      private: !argv.public,
     });
     console.log('Done');
 
@@ -72,7 +72,7 @@ async function create(argv) {
     console.log('Following project with Circle CI');
     await followWithCircle(cci, {
       project: repoName,
-      username: githubAccountName
+      username: githubAccountName,
     });
     console.log('Done');
 
@@ -94,7 +94,7 @@ async function create(argv) {
         orgName: githubDisplayName,
         packageName,
         remoteRepo,
-        repoName
+        repoName,
       },
       github
     );
@@ -117,9 +117,9 @@ async function create(argv) {
         required_pull_request_reviews: null,
         required_status_checks: {
           contexts: ['ci/circleci: lint', 'ci/circleci: test'],
-          strict: true
+          strict: true,
         },
-        restrictions: null
+        restrictions: null,
       });
       /* eslint-enable camelcase */
     }
@@ -130,7 +130,7 @@ async function create(argv) {
         await follow(
           {
             githubRepoObject: remoteRepo,
-            githubUserObject
+            githubUserObject,
           },
           github
         );

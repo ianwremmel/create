@@ -26,10 +26,10 @@ async function check(machine, testurl) {
       auth: {
         pass: auth.password,
         sendImmediately: true,
-        user: auth.login
+        user: auth.login,
       },
       headers: {'user-agent': 'request-promise-native'},
-      url: testurl
+      url: testurl,
     };
     await request(opts);
     debug(f`verified creds for ${machine}`);

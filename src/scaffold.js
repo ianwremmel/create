@@ -14,37 +14,37 @@ const {npmInstallDev, npmInstallPeersOf} = require('./lib/npm');
 const scripts = [
   {
     name: 'lint',
-    to: 'npm-run-all lint:*'
+    to: 'npm-run-all lint:*',
   },
   {
     name: 'lint:changelog',
-    to: 'commitlint --from origin/master --to HEAD'
+    to: 'commitlint --from origin/master --to HEAD',
   },
   {
     name: 'eslint',
-    to: 'eslint --ignore --ignore-path .gitignore'
+    to: 'eslint --ignore --ignore-path .gitignore',
   },
   {
     name: 'lint:js',
-    to: 'npm run --silent eslint -- .'
+    to: 'npm run --silent eslint -- .',
   },
   {
     name: 'test',
-    to: "echo 'no tests specified'; exit 1"
+    to: "echo 'no tests specified'; exit 1",
   },
   {
     name: 'semantic-release',
-    to: 'semantic-release'
+    to: 'semantic-release',
   },
   {
     name: 'build',
-    to: 'npm-run-all build:*'
+    to: 'npm-run-all build:*',
   },
   {
     name: 'build:readme',
     to:
-      "markdown-toc -i --bullets='-' --maxdepth=3  README.md  && prettier --write README.md"
-  }
+      "markdown-toc -i --bullets='-' --maxdepth=3  README.md  && prettier --write README.md",
+  },
 ];
 
 /* eslint-disable complexity */
@@ -75,14 +75,14 @@ async function scaffold(
       license: 'MIT',
       org,
       packageName,
-      shortDescription: ''
+      shortDescription: '',
     });
 
     if (!(await exists('LICENSE'))) {
       debug('creating LICENSE');
 
       await template('LICENSE', {
-        licenseHolderDisplayName: orgName || githubUserObject.name
+        licenseHolderDisplayName: orgName || githubUserObject.name,
       });
 
       debug('committing LICENSE');
@@ -132,7 +132,7 @@ async function scaffold(
       name: repoName,
       packageName,
       repository: remoteRepo.git_url,
-      shortDescription: ''
+      shortDescription: '',
     });
   }
 
@@ -164,7 +164,7 @@ async function scaffold(
     'lint-staged',
     'markdown-toc',
     'npm-run-all',
-    'semantic-release'
+    'semantic-release',
   ]);
   debug('installing eslint config peer dependencies');
   await npmInstallPeersOf('@ianwremmel/eslint-plugin-ianwremmel');
@@ -188,7 +188,7 @@ async function scaffold(
     const pkg = await fn(p, shift);
     pkg['lint-staged'] = {
       '*.js': 'npm run eslint -- ',
-      'bin/**': 'npm run eslint -- '
+      'bin/**': 'npm run eslint -- ',
     };
     return pkg;
   });
