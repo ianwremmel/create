@@ -1,10 +1,11 @@
 const invariant = require('invariant');
 const request = require('request-promise-native');
 const prompt = require('prompt-sync')();
+const {debug, format: f} = require('@ianwremmel/debug');
 
 const netrc = require('./netrc');
-const {d: debug, f} = require('./debug')(__filename);
 
+const d = debug(__filename);
 const CIRCLECI_API_BASE = 'https://circleci.com/api/v1.1';
 
 exports.followWithCircle = followWithCircle;
@@ -342,18 +343,16 @@ async function followWithCircle(cci, details) {
   invariant(details.username, 'details.username is required');
   invariant(details.project, 'details.project is required');
 
-  debug(
-    f`Following project ${details.username}/${details.project} on Circle CI`
-  );
+  d(f`Following project ${details.username}/${details.project} on Circle CI`);
   try {
     await cci.follow(details);
   } catch (err) {
-    debug('Failed to follow project. Waiting 10 seconds and trying again.');
+    d('Failed to follow project. Waiting 10 seconds and trying again.');
     await new Promise((resolve) => setTimeout(resolve, 10000));
   }
-  debug('Done');
+  d('Done');
 
-  debug(
+  d(
     'Enable autocancel builds, build fork PRs, and disabling secrets on fork PRs'
   );
   try {
@@ -368,7 +367,7 @@ async function followWithCircle(cci, details) {
       },
       ...details,
     });
-    debug('Done');
+    d('Done');
   } catch (err) {
     console.error('Failed to fully configure Circle CI');
     console.error(err.message);

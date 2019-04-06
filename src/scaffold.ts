@@ -1,12 +1,13 @@
 import * as Octokit from '@octokit/rest';
 import {exists, readFile, writeFile} from 'mz/fs';
+import {debug} from '@ianwremmel/debug';
 import {pkgShift, transformCallback, Package} from '@ianwremmel/pkgshift';
 
 import {copy, template} from './lib/templating';
 import {addAndCommit, addToGitIgnore} from './lib/git';
 import {npmInstallDev, npmInstallPeersOf} from './lib/npm';
 
-const debug = require('./lib/debug')(__filename);
+const d = debug(__filename);
 
 export async function scaffold(options: ScaffoldOptions) {
   await configureReadmeAndLicense(options);
@@ -47,7 +48,7 @@ async function configureReadmeAndLicense({
   packageName,
 }: ScaffoldOptions) {
   if (!(await exists('README.md'))) {
-    debug('creating README.md');
+    d('creating README.md');
 
     template('README.md', {
       githubDisplayName: githubUserObject.name,
@@ -61,18 +62,18 @@ async function configureReadmeAndLicense({
       shortDescription: '',
     });
 
-    debug('committing README.md');
+    d('committing README.md');
     await addAndCommit(['README.md'], 'docs(readme): add README');
   }
 
   if (license === 'MIT' && !(await exists('LICENSE'))) {
-    debug('creating LICENSE');
+    d('creating LICENSE');
 
     await template('LICENSE', {
       licenseHolderDisplayName: orgName || githubUserObject.name,
     });
 
-    debug('committing LICENSE');
+    d('committing LICENSE');
     await addAndCommit(['LICENSE'], 'docs(readme): add LICENSE');
   }
 }
@@ -91,7 +92,7 @@ async function initializePackage({
   ).email;
 
   if (!(await exists('package.json'))) {
-    debug('creating initial package.json');
+    d('creating initial package.json');
     await template('package.json', {
       authorEmail: githubPublicEmail,
       authorName: githubUserObject.name,
@@ -103,14 +104,14 @@ async function initializePackage({
   }
 
   await transformPackage((pkg, {api}) => {
-    debug('checking for engines.node');
+    d('checking for engines.node');
     if (!pkg.engines || !pkg.engines.node) {
-      debug('setting engines.node');
+      d('setting engines.node');
       pkg.engines = pkg.engines || {};
       pkg.engines.node = '>=10';
     }
 
-    debug('adding default scripts');
+    d('adding default scripts');
     api.setOrReplaceScript(pkg, {
       name: 'lint',
       to: 'npm-run-all lint:*',
@@ -146,13 +147,13 @@ async function initializeGitIgnore(): Promise<void> {
 }
 
 async function configureHusky(): Promise<void> {
-  debug('installing husky');
+  d('installing husky');
   await npmInstallDev(['husky']);
   await addAndCommit(['package.json'], 'chore: add husky');
 }
 
 async function configureLintStaged(): Promise<void> {
-  debug('installing lint-staged');
+  d('installing lint-staged');
   await npmInstallDev(['lint-staged']);
   await transformPackage((pkg) => {
     pkg['lint-staged'] = pkg['lint-staged'] || {};
@@ -162,9 +163,9 @@ async function configureLintStaged(): Promise<void> {
 }
 
 async function configureEslintAndPrettier(): Promise<void> {
-  debug('installing eslint and peers');
+  d('installing eslint and peers');
   await npmInstallDev(['@ianwremmel/eslint-plugin-ianwremmel', 'eslint']);
-  debug('installing eslint config peer dependencies');
+  d('installing eslint config peer dependencies');
   await npmInstallPeersOf('@ianwremmel/eslint-plugin-ianwremmel');
 
   const files = [];
@@ -250,9 +251,9 @@ async function configureSemanticRelease(): Promise<void> {
 }
 
 async function configureCircleCi(): Promise<void> {
-  debug('checking of circle config exists');
+  d('checking of circle config exists');
   if (!(await exists('.circleci/config.yml'))) {
-    debug('circle config does not exist, creating it');
+    d('circle config does not exist, creating it');
     await copy('.circleci/config.yml');
     await addAndCommit(
       ['.circleci/config.yml'],
@@ -295,7 +296,7 @@ async function txSortScripts(pkg: Package): Promise<Package> {
     return pkg;
   }
 
-  debug('Sorting package.json scripts');
+  d('Sorting package.json scripts');
   const keys = Object.keys(scripts).sort();
 
   const result: Record<string, string> = {};

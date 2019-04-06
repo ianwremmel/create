@@ -10,8 +10,8 @@ import {scaffold} from './scaffold';
  * @property {string} [org]
  */
 const {exec} = require('mz/child_process');
+const d = require('@ianwremmel/debug').debug(__filename);
 
-const {d: debug} = require('./lib/debug')(__filename);
 const {exists} = require('./lib/file');
 const {addAndCommit} = require('./lib/git');
 const {template} = require('./lib/templating');
@@ -87,10 +87,10 @@ async function create(argv) {
     console.log('Done');
 
     if (!(await exists('.editorconfig'))) {
-      debug('creating .editorconfig');
+      d('creating .editorconfig');
       await template('.editorconfig', {});
 
-      debug('committing .editorconfig');
+      d('committing .editorconfig');
       await addAndCommit(
         ['.editorconfig'],
         'build(tooling): add .editorconfig'

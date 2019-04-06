@@ -1,6 +1,6 @@
 const {exec} = require('mz/child_process');
-
-const {d: debug, f} = require('./debug')(__filename);
+const {debug, format: f} = require('@ianwremmel/debug');
+const d = debug(__filename);
 
 /**
  * Use the npm command line to install the specifed packages and save them as
@@ -8,9 +8,9 @@ const {d: debug, f} = require('./debug')(__filename);
  * @param {string[]} packages
  */
 async function npmInstallDev(packages) {
-  debug('installing dev dependencies', packages);
+  d('installing dev dependencies', packages);
   await exec(`npm install --save-dev ${packages.join(' ')}`);
-  debug('installed dev dependencies');
+  d('installed dev dependencies');
 }
 
 exports.npmInstallDev = npmInstallDev;
@@ -20,7 +20,7 @@ exports.npmInstallDev = npmInstallDev;
  * @param {string} packageName
  */
 async function npmInstallPeersOf(packageName) {
-  debug(f`installing peers of ${packageName}`);
+  d(f`installing peers of ${packageName}`);
   const [out] = await exec(`npm info --json ${packageName}`);
   const info = JSON.parse(out.toString());
   await npmInstallDev(Object.keys(info.peerDependencies));

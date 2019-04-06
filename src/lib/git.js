@@ -5,7 +5,8 @@ import {writeFile} from 'mz/fs';
 
 import {readFileOrEmpty} from './file';
 
-const {d: debug, f} = require('./debug')(__filename);
+const {debug, format: f} = require('@ianwremmel/debug');
+const d = debug(__filename);
 
 const rootCommitMessage = `root - this space intentionally left blank
 
@@ -25,21 +26,21 @@ https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/
  * @param {string} msg
  */
 export async function addAndCommit(files, msg) {
-  debug('Resetting any staged files');
+  d('Resetting any staged files');
   await exec('git reset .');
-  debug('Done');
+  d('Done');
 
   if (files.includes('package.json')) {
     files.push('package-lock.json');
   }
 
-  debug('Adding files', files);
+  d('Adding files', files);
   await exec(`git add ${files.join(' ')}`);
-  debug('Added files');
+  d('Added files');
 
-  debug('Committing');
+  d('Committing');
   await exec(`git commit -m '${msg}'`);
-  debug('Done');
+  d('Done');
 }
 
 /**
@@ -57,7 +58,7 @@ export async function addAndCommit(files, msg) {
 export async function getOrCreateRemoteRepo(github, details) {
   try {
     if (details.org) {
-      debug(f`Creating github repo ${details.name} for org ${details.org}`);
+      d(f`Creating github repo ${details.name} for org ${details.org}`);
       // this is to trick the typescript compiler into noticing that org is
       // definitely defined here
       const realDetails = {
@@ -66,15 +67,15 @@ export async function getOrCreateRemoteRepo(github, details) {
         private: details.private,
       };
       const {data: githubRepo} = await github.repos.createInOrg(realDetails);
-      debug('Done');
+      d('Done');
       return githubRepo;
     }
 
-    debug(f`Creating github repo ${details.name} for current github user`);
+    d(f`Creating github repo ${details.name} for current github user`);
     const {data: githubRepo} = await github.repos.createForAuthenticatedUser(
       details
     );
-    debug('Done');
+    d('Done');
     return githubRepo;
   } catch (err) {
     // 422 probably implies we've already got a repo by that name, so, assume
@@ -82,14 +83,14 @@ export async function getOrCreateRemoteRepo(github, details) {
     if (err.status !== 422) {
       throw err;
     }
-    debug('Project already seems to exist on GitHub');
-    debug('Fetching GitHub repo details');
+    d('Project already seems to exist on GitHub');
+    d('Fetching GitHub repo details');
     const repoDetails = {
       owner: details.org || details.owner,
       repo: details.name,
     };
     const {data: githubRepo} = await github.repos.get(repoDetails);
-    debug('Done');
+    d('Done');
     return githubRepo;
   }
 }
@@ -100,37 +101,37 @@ export async function getOrCreateRemoteRepo(github, details) {
  */
 export async function initializeLocalRepo(githubRepoObject) {
   try {
-    debug('Checking if this project has a git repo');
+    d('Checking if this project has a git repo');
     await exec('git status');
-    debug('Git has already been initialized for this project');
+    d('Git has already been initialized for this project');
   } catch (err) {
-    debug(f`Initializing git repo in ${process.cwd()}`);
+    d(f`Initializing git repo in ${process.cwd()}`);
     await exec('git init');
-    debug(f`Initialized git repo in ${process.cwd()}`);
+    d(f`Initialized git repo in ${process.cwd()}`);
   }
 
   try {
-    debug('Checking if the local repo has any commits');
+    d('Checking if the local repo has any commits');
     await exec('git log');
-    debug('There are already commits, not adding root commit');
+    d('There are already commits, not adding root commit');
   } catch (err) {
-    debug('Adding root commit');
+    d('Adding root commit');
     await exec(`git commit --allow-empty -m "${rootCommitMessage}"`);
-    debug('Added root commit');
+    d('Added root commit');
   }
 
   if (githubRepoObject) {
-    debug('Attempting to add GitHub repo as origin remote');
+    d('Attempting to add GitHub repo as origin remote');
     try {
       await exec(`git remote add origin ${githubRepoObject.ssh_url}`);
-      debug('Added origin remote');
+      d('Added origin remote');
     } catch (err) {
       if (!err.message.includes('remote origin already exists.')) {
-        debug('Could not add origin remote.');
+        d('Could not add origin remote.');
         debug(err);
         throw err;
       }
-      debug('Remote origin already exists');
+      d('Remote origin already exists');
     }
   }
 }
@@ -152,16 +153,16 @@ export async function pushAndTrackBranch({
  * @param {string[]} [ignored=[]]
  */
 export async function addToGitIgnore(ignored = []) {
-  debug('reading .gitignore');
+  d('reading .gitignore');
   const raw = String(await readFileOrEmpty('.gitignore'));
   const gitignore = new Set(raw.split('\n'));
 
-  debug('adding ${ignored.join(', ') to .gitignore');
+  d('adding ${ignored.join(', ') to .gitignore');
   for (const ignore of ignored) {
     gitignore.add(ignore);
   }
 
-  debug('writing .gitignore');
+  d('writing .gitignore');
   await writeFile(
     '.gitignore',
     Array.from(gitignore)
