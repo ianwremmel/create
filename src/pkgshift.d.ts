@@ -1,7 +1,24 @@
 declare module '@ianwremmel/pkgshift' {
-  interface Package extends Object {}
+  interface Package extends Object {
+    scripts?: Record<string, string>;
+    engines?: {
+      node?: string;
+      npm?: string;
+    };
+    'lint-staged': Record<string, string | string[]>;
+    release?: Record<string, string | string[]>;
+  }
 
-  interface TransformAPI extends Object {}
+  interface TransformAPI {
+    setOrReplaceScript: (
+      pkg: Package,
+      options: {
+        from?: string | RegExp;
+        name: string;
+        to: string;
+      }
+    ) => void;
+  }
 
   interface TransformOptions {
     api: TransformAPI;

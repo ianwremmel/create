@@ -1,0 +1,15 @@
+extends:
+  - 'plugin:@ianwremmel/ianwremmel/modern'
+overrides:
+  - files:
+      - '*.config.js'
+    env:
+      node: true
+    parserOptions:
+      sourceType: 'script'
+    rules:
+      strict:
+        - error
+        - global
+parserOptions:
+  sourceType: 'script'

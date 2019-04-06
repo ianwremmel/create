@@ -1,10 +1,7 @@
-'use strict';
-
 const request = require('request-promise-native');
 // eslint-disable-next-line no-unused-vars
 const GitHub = require('@octokit/rest');
-
-const {d: debug} = require('./debug')(__filename);
+const d = require('@ianwremmel/debug').debug(__filename);
 
 /**
  *
@@ -14,42 +11,42 @@ const {d: debug} = require('./debug')(__filename);
  * @param {GitHub} github
  */
 async function follow({githubRepoObject, githubUserObject}, github) {
-  debug('Creating temporary github token');
+  d('Creating temporary github token');
   const {
-    data: {token, id: tokenId}
+    data: {token, id: tokenId},
   } = await github.oauthAuthorizations.createAuthorization({
-    note: 'Temporary token for @ianwremmel/create',
-    scopes: ['repo']
+    note:
+      'Temporary token for @ianwremmel/create to call CircleCI. If you are not current running the create script, you can delete this token.',
+    scopes: ['repo'],
   });
-  debug('Created temporary github token');
+  d('Created temporary github token');
   try {
-    debug('Following project with dependabot');
+    d('Following project with dependabot');
     await request({
       body: {
         'account-id': githubUserObject.id,
         'account-type': 'user',
-        'automerge-rule-development-deps': 'minor',
-        'automerge-rule-runtime-deps': 'minor',
+        'automerge-rule-development-deps': 'in_range',
+        'automerge-rule-runtime-deps': 'in_range',
         directory: '/',
         'package-manager': 'npm_and_yarn',
         'repo-id': githubRepoObject.id,
-        'update-schedule': 'daily'
+        'update-schedule': 'daily',
       },
       headers: {
-        Authorization: `Personal ${token}`
+        Authorization: `Personal ${token}`,
       },
       json: true,
       method: 'POST',
-      url: 'https://api.dependabot.com/update_configs'
+      url: 'https://api.dependabot.com/update_configs',
     });
-    debug('Followed project with dependabot');
+    d('Followed project with dependabot');
   } finally {
-    debug('Removing temporary github token');
+    d('Removing temporary github token');
     await github.oauthAuthorizations.deleteAuthorization({
-      // eslint-disable-next-line camelcase
-      authorization_id: tokenId
+      authorization_id: tokenId,
     });
-    debug('Removed temporary github token');
+    d('Removed temporary github token');
   }
 }
 

@@ -1,19 +1,32 @@
-'use strict';
+import * as path from 'path';
 
-const path = require('path');
-
-const fs = require('mz/fs');
+import {access, constants, readFile} from 'mz/fs';
 
 /**
  * @param {string} filename
  * @returns {Promise<boolean>}
  */
-exports.exists = async function exists(filename) {
+export async function exists(filename) {
   const fullPath = path.resolve(process.cwd(), filename);
   try {
-    await fs.access(fullPath, fs.constants.F_OK);
+    await access(fullPath, constants.F_OK);
     return true;
   } catch (err) {
     return false;
   }
-};
+}
+
+/**
+ * @param {string} filename
+ * @returns {Promise<string>}
+ */
+export async function readFileOrEmpty(filename) {
+  try {
+    return await readFile(filename, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return '';
+    }
+    throw err;
+  }
+}

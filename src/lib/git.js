@@ -1,15 +1,12 @@
-'use strict';
-
-const {exec} = require('mz/child_process');
+import {exec} from 'mz/child_process';
 // eslint-disable-next-line no-unused-vars
-const GitHub = require('@octokit/rest');
+import * as GitHub from '@octokit/rest';
+import {writeFile} from 'mz/fs';
 
-const {d: debug, f} = require('./debug')(__filename);
+import {readFileOrEmpty} from './file';
 
-exports.addAndCommit = addAndCommit;
-exports.getOrCreateRemoteRepo = getOrCreateRemoteRepo;
-exports.initializeLocalRepo = initializeLocalRepo;
-exports.pushAndTrackBranch = pushAndTrackBranch;
+const {debug, format: f} = require('@ianwremmel/debug');
+const d = debug(__filename);
 
 const rootCommitMessage = `root - this space intentionally left blank
 
@@ -28,18 +25,22 @@ https://bit-booster.com/doing-git-wrong/2017/01/02/git-init-empty/
  * @param {Array<string>} files
  * @param {string} msg
  */
-async function addAndCommit(files, msg) {
-  debug('Resetting any staged files');
+export async function addAndCommit(files, msg) {
+  d('Resetting any staged files');
   await exec('git reset .');
-  debug('Done');
+  d('Done');
 
-  debug('Adding files', files);
+  if (files.includes('package.json')) {
+    files.push('package-lock.json');
+  }
+
+  d('Adding files', files);
   await exec(`git add ${files.join(' ')}`);
-  debug('Added files');
+  d('Added files');
 
-  debug('Committing');
+  d('Committing');
   await exec(`git commit -m '${msg}'`);
-  debug('Done');
+  d('Done');
 }
 
 /**
@@ -54,42 +55,42 @@ async function addAndCommit(files, msg) {
  * @param {boolean} details.private
  * @returns {Promise<GitHub.ReposGetResponse|GitHub.ReposCreateForAuthenticatedUserResponse|GitHub.ReposCreateInOrgResponse>} - The GitHub API repo object
  */
-async function getOrCreateRemoteRepo(github, details) {
+export async function getOrCreateRemoteRepo(github, details) {
   try {
     if (details.org) {
-      debug(f`Creating github repo ${details.name} for org ${details.org}`);
+      d(f`Creating github repo ${details.name} for org ${details.org}`);
       // this is to trick the typescript compiler into noticing that org is
       // definitely defined here
       const realDetails = {
         name: details.name,
         org: details.org,
-        private: details.private
+        private: details.private,
       };
       const {data: githubRepo} = await github.repos.createInOrg(realDetails);
-      debug('Done');
+      d('Done');
       return githubRepo;
     }
 
-    debug(f`Creating github repo ${details.name} for current github user`);
+    d(f`Creating github repo ${details.name} for current github user`);
     const {data: githubRepo} = await github.repos.createForAuthenticatedUser(
       details
     );
-    debug('Done');
+    d('Done');
     return githubRepo;
   } catch (err) {
     // 422 probably implies we've already got a repo by that name, so, assume
     // this is the same repo.
-    if (err.code !== 422) {
+    if (err.status !== 422) {
       throw err;
     }
-    debug('Project already seems to exist on GitHub');
-    debug('Fetching GitHub repo details');
+    d('Project already seems to exist on GitHub');
+    d('Fetching GitHub repo details');
     const repoDetails = {
       owner: details.org || details.owner,
-      repo: details.name
+      repo: details.name,
     };
     const {data: githubRepo} = await github.repos.get(repoDetails);
-    debug('Done');
+    d('Done');
     return githubRepo;
   }
 }
@@ -98,39 +99,39 @@ async function getOrCreateRemoteRepo(github, details) {
  * Creates a local git repository and points its origin at githubRepoObject
  * @param {Object} [githubRepoObject]
  */
-async function initializeLocalRepo(githubRepoObject) {
+export async function initializeLocalRepo(githubRepoObject) {
   try {
-    debug('Checking if this project has a git repo');
+    d('Checking if this project has a git repo');
     await exec('git status');
-    debug('Git has already been initialized for this project');
+    d('Git has already been initialized for this project');
   } catch (err) {
-    debug(f`Initializing git repo in ${process.cwd()}`);
+    d(f`Initializing git repo in ${process.cwd()}`);
     await exec('git init');
-    debug(f`Initialized git repo in ${process.cwd()}`);
+    d(f`Initialized git repo in ${process.cwd()}`);
   }
 
   try {
-    debug('Checking if the local repo has any commits');
+    d('Checking if the local repo has any commits');
     await exec('git log');
-    debug('There are already commits, not adding root commit');
+    d('There are already commits, not adding root commit');
   } catch (err) {
-    debug('Adding root commit');
+    d('Adding root commit');
     await exec(`git commit --allow-empty -m "${rootCommitMessage}"`);
-    debug('Added root commit');
+    d('Added root commit');
   }
 
   if (githubRepoObject) {
-    debug('Attempting to add GitHub repo as origin remote');
+    d('Attempting to add GitHub repo as origin remote');
     try {
       await exec(`git remote add origin ${githubRepoObject.ssh_url}`);
-      debug('Added origin remote');
+      d('Added origin remote');
     } catch (err) {
       if (!err.message.includes('remote origin already exists.')) {
-        debug('Could not add origin remote.');
+        d('Could not add origin remote.');
         debug(err);
         throw err;
       }
-      debug('Remote origin already exists');
+      d('Remote origin already exists');
     }
   }
 }
@@ -141,6 +142,31 @@ async function initializeLocalRepo(githubRepoObject) {
  * @param {string} [options.branch=master]
  * @param {string} [options.remote=origin]
  */
-async function pushAndTrackBranch({branch = 'master', remote = 'origin'} = {}) {
+export async function pushAndTrackBranch({
+  branch = 'master',
+  remote = 'origin',
+} = {}) {
   await exec(`git push -u ${remote} ${branch}:${branch}`);
+}
+
+/**
+ * @param {string[]} [ignored=[]]
+ */
+export async function addToGitIgnore(ignored = []) {
+  d('reading .gitignore');
+  const raw = String(await readFileOrEmpty('.gitignore'));
+  const gitignore = new Set(raw.split('\n'));
+
+  d('adding ${ignored.join(', ') to .gitignore');
+  for (const ignore of ignored) {
+    gitignore.add(ignore);
+  }
+
+  d('writing .gitignore');
+  await writeFile(
+    '.gitignore',
+    Array.from(gitignore)
+      .filter(Boolean)
+      .join('\n')
+  );
 }
