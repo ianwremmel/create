@@ -18,14 +18,14 @@ exports.template = async function template(filename, context = {}) {
   try {
     debug(f`Checking for ${filename} with ejs extension`);
     tpl = await readFile(
-      path.resolve(__dirname, '..', 'templates', `${filename}.ejs`),
+      path.resolve(__dirname, '..', '..', 'templates', `${filename}.ejs`),
       'utf8'
     );
     debug(f`Found ${filename} with ejs extension`);
   } catch (err) {
     debug(f`Checking for ${filename} without ejs extension`);
     tpl = await readFile(
-      path.resolve(__dirname, '..', 'templates', filename),
+      path.resolve(__dirname, '..', '..', 'templates', filename),
       'utf8'
     );
     debug(f`Found for ${filename} with ejs extension`);
@@ -50,7 +50,7 @@ exports.template = async function template(filename, context = {}) {
 exports.copy = async function copy(filename) {
   debug(f`Copying ${filename} into project`);
 
-  const src = path.resolve(__dirname, '..', 'templates', filename);
+  const src = path.resolve(__dirname, '..', '..', 'templates', filename);
   const dest = path.resolve(process.cwd(), filename);
   const dir = path.dirname(dest);
 

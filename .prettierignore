@@ -2,4 +2,4 @@
 *.css
 .babelrc
 *.yml
-src/templates
+templates
