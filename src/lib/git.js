@@ -79,7 +79,7 @@ async function getOrCreateRemoteRepo(github, details) {
   } catch (err) {
     // 422 probably implies we've already got a repo by that name, so, assume
     // this is the same repo.
-    if (err.code !== 422) {
+    if (err.status !== 422) {
       throw err;
     }
     debug('Project already seems to exist on GitHub');
