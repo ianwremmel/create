@@ -4,12 +4,9 @@
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 [![Dependabot badge](https://img.shields.io/badge/Dependabot-active-brightgreen.svg)](https://dependabot.com/)
-[![dependencies Status](https://david-dm.org/ianwremmel/proj/status.svg)](https://david-dm.org/ianwremmel/proj)
-[![devDependencies Status](https://david-dm.org/ianwremmel/proj/dev-status.svg)](https://david-dm.org/ianwremmel/proj?type=dev)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 [![CircleCI](https://circleci.com/gh/ianwremmel/proj.svg?style=svg)](https://circleci.com/gh/ianwremmel/proj)
-[![Coverage Status](https://coveralls.io/repos/github/ianwremmel/proj/badge.svg?branch=master)](https://coveralls.io/github/ianwremmel/proj?branch=master)
 
 > Rig up projects on GitHub/CircleCI
 
@@ -19,20 +16,39 @@ according to my preferences.
 
 ## Install
 
-> Since this project is intentded for use with `npm init`, there's generally no
+> Since this project is intended for use with `npm init`, there's generally no
 > need to install it.
 
-```bash
-npm install -g @ianwremmel/create
-```
+1. (optional) Install the
+   [1Password CLI](https://1password.com/downloads/command-line/) to
+   (potentiall) avoid some password prompts.
+1. Use with npm init
+
+    ```bash
+    npm install -g @ianwremmel/create
+    ```
 
 ## Usage
+
+In order to avoid some password prompts, `create` attempts to pull credentials
+from 1Password. You'll need to set:
+
+-   a 1Password `login` for `github.com` (2-Factor Auth is supported)
+-   a 1Password `password` for `Circle CI API Token`
+
+> If you don't set these values, you'll be prompted for them at runtime. Due to
+> timing effects, you may be prompted for multiple GitHub OTPs.
+
+Use just like `npm init`
+
+> If you're relying on 1Password, make sure to run `eval $(op signin my)` first.
 
 ```bash
 npm init @ianwremmel
 ```
 
-Without options, the default behavior is:
+You'll be prompted for a few decisions and then the script will do (at least)
+the following:
 
 -   create a github repository
 -   initialize local repository
@@ -57,11 +73,8 @@ Without options, the default behavior is:
 -   setup branch protection
 -   Follow project with dependabot
 
-### Options
-
--   `--public`: Make the GitHub repo a public repo.
--   `--local-only`: Only scaffold the project locally; do not set up GitHub or
-    services (Note: this flag is not well tested).
+> This project is _supposed_ to be idempotent, but rerunning in an existing
+> project is not well tested. Use at your own risk.
 
 ## Maintainers
 
