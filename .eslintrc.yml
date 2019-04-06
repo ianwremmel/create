@@ -8,6 +8,7 @@ overrides:
       project: "./tsconfig.json"
     rules:
       import/export: off
+      import/no-unresolved: off
       no-redeclare: off
       # use as types doesn"t count as used
       no-unused-vars: off

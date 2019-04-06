@@ -358,7 +358,6 @@ async function followWithCircle(cci, details) {
   try {
     await cci.configure({
       settings: {
-        // eslint-disable-next-line camelcase
         feature_flags: {
           'autocancel-builds': true,
           'build-fork-prs': true,

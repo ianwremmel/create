@@ -44,7 +44,6 @@ async function follow({githubRepoObject, githubUserObject}, github) {
   } finally {
     d('Removing temporary github token');
     await github.oauthAuthorizations.deleteAuthorization({
-      // eslint-disable-next-line camelcase
       authorization_id: tokenId,
     });
     d('Removed temporary github token');
