@@ -20,21 +20,32 @@ const {follow} = require('./lib/dependabot');
 
 /* eslint-disable complexity */
 
-interface CreateArgs {
-  localOnly: boolean;
-  public: boolean;
-  org?: string;
-}
-
-async function create(argv: CreateArgs) {
+async function create() {
   try {
-    const {license} = await inquirer.prompt({
-      choices: ['MIT', 'UNLICENSED'],
-      default: 'MIT',
-      message: 'Select a license',
-      name: 'license',
-      type: 'list',
-    });
+    const {license, org, publicProject} = await inquirer.prompt([
+      {
+        choices: ['MIT', 'UNLICENSED'],
+        default: 'MIT',
+        message: 'Select a license',
+        name: 'license',
+        type: 'list',
+      },
+      {
+        default: '',
+        message: 'GitHub Org (optional)',
+        name: 'org',
+        transformer(input) {
+          return input.toLowerCase();
+        },
+      },
+      {
+        default: false,
+        message: "Should this project's GitHub repo be public?",
+        // public is a reserved word
+        name: 'publicProject',
+        type: 'confirm',
+      },
+    ]);
 
     const cci = new CircleCI();
 
@@ -50,10 +61,9 @@ async function create(argv: CreateArgs) {
 
     const {data: githubUserObject} = await github.users.getAuthenticated({});
 
-    let org, orgName;
-    if (argv.org) {
-      const {data: githubOrgObject} = await github.orgs.get({org: argv.org});
-      org = githubOrgObject.login.toLowerCase();
+    let orgName;
+    if (org) {
+      const {data: githubOrgObject} = await github.orgs.get({org});
       orgName = githubOrgObject.name;
     }
 
@@ -66,7 +76,7 @@ async function create(argv: CreateArgs) {
       name: repoName,
       org,
       owner: githubAccountName,
-      private: !argv.public,
+      private: !publicProject,
     });
     console.log('Done');
 
@@ -107,64 +117,50 @@ async function create(argv: CreateArgs) {
       repoName,
     });
 
-    if (!argv.localOnly) {
-      console.log('Pushing all changes to GitHub');
-      await exec('git push');
-      console.log('Pushed all changes to GitHub');
-    }
+    console.log('Pushing all changes to GitHub');
+    await exec('git push');
+    console.log('Pushed all changes to GitHub');
 
-    if (!argv.localOnly) {
-      console.log('Enforcing branch protection');
-      await github.repos.updateBranchProtection({
-        branch: 'master',
-        enforce_admins: true,
-        owner: githubAccountName,
-        repo: repoName,
-        required_pull_request_reviews: null,
-        required_status_checks: {
-          contexts: ['ci/circleci: lint', 'ci/circleci: test'],
-          strict: true,
+    console.log('Enforcing branch protection');
+    await github.repos.updateBranchProtection({
+      branch: 'master',
+      enforce_admins: true,
+      owner: githubAccountName,
+      repo: repoName,
+      required_pull_request_reviews: null,
+      required_status_checks: {
+        contexts: ['ci/circleci: lint', 'ci/circleci: test'],
+        strict: true,
+      },
+      restrictions: null,
+    });
+
+    console.log('Following project with dependabot');
+    try {
+      await follow(
+        {
+          githubRepoObject: remoteRepo,
+          githubUserObject,
         },
-        restrictions: null,
-      });
-    }
-
-    if (!argv.localOnly) {
-      console.log('Following project with dependabot');
-      try {
-        await follow(
-          {
-            githubRepoObject: remoteRepo,
-            githubUserObject,
-          },
-          github
-        );
-        console.log('Done');
-      } catch (err) {
-        console.error('Failed to follow project with dependabot');
-        console.error(err);
-      }
-    }
-
-    if (argv.localOnly) {
-      console.log(
-        'Your project has been configured locally, but since you specified localOnly, some actions setup could not be completed'
+        github
       );
-    } else {
-      console.log();
-      console.log('Your project can be viewed at the following urls');
-      if (remoteRepo) {
-        console.log('GitHub:');
-        console.log(`  ${remoteRepo.html_url}`);
-
-        console.log('CircleCI:');
-        console.log(
-          `  https://circleci.com/gh/${githubAccountName}/${repoName}`
-        );
-      }
-
-      console.log();
+      console.log('Done');
+    } catch (err) {
+      console.error('Failed to follow project with dependabot');
+      console.error(err);
     }
+
+    console.log();
+    console.log('Your project can be viewed at the following urls');
+    if (remoteRepo) {
+      console.log('GitHub:');
+      console.log(`  ${remoteRepo.html_url}`);
+
+      console.log('CircleCI:');
+      console.log(`  https://circleci.com/gh/${githubAccountName}/${repoName}`);
+    }
+
+    console.log();
   } catch (err) {
     console.error(err);
     throw err;
