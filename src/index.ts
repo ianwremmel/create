@@ -22,7 +22,23 @@ const {follow} = require('./lib/dependabot');
 
 async function create() {
   try {
-    const {circleToken, license, org, publicProject} = await inquirer.prompt([
+    let defaultCircleToken = '';
+    try {
+      const res = (await exec("op get item 'Circle CI API Token'"))[0]
+        .toString()
+        .trim();
+      const data = JSON.parse(res);
+      defaultCircleToken = data.details.password;
+    } catch {
+      // ignore
+    }
+
+    const results = await inquirer.prompt<{
+      circleciToken: string;
+      license: 'MIT' | 'UNLICENSED';
+      org: string;
+      publicProject: boolean;
+    }>([
       {
         choices: ['MIT', 'UNLICENSED'],
         default: 'MIT',
@@ -46,22 +62,14 @@ async function create() {
         type: 'confirm',
       },
       {
-        default: await (async () => {
-          try {
-            const res = await exec("op get item 'Circle CI API Token'")
-              .toString()
-              .trim();
-            const data = JSON.parse(res);
-            return data.details.password;
-          } catch {
-            return '';
-          }
-        })(),
+        default: defaultCircleToken,
         message: 'Circle CI API Token',
         name: 'circleciToken',
         type: 'password',
       },
     ]);
+
+    const {circleciToken, license, org, publicProject} = results;
 
     const repoName = process
       .cwd()
@@ -105,7 +113,7 @@ async function create() {
     console.log('Following project with Circle CI');
     await followWithCircleCI({
       project: repoName,
-      token: circleToken,
+      token: circleciToken,
       userOrOrgName: githubAccountName,
     });
     console.log('Done');
