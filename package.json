@@ -57,7 +57,6 @@
     "@types/supports-color": "^5.3.0",
     "@typescript-eslint/parser": "^2.0.0",
     "chai": "^4.1.2",
-    "condition-circle": "^2.0.0",
     "debug": "^4.0.1",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.1.0",
@@ -79,7 +78,10 @@
     "*.js": "npm run eslint"
   },
   "release": {
-    "verifyConditions": "condition-circle"
+    "branches": [
+      "master"
+    ],
+    "ci": true
   },
   "husky": {
     "hooks": {
