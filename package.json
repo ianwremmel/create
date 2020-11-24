@@ -37,7 +37,7 @@
     "netrc": "^0.1.4",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
-    "supports-color": "^7.0.0"
+    "supports-color": "^8.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
